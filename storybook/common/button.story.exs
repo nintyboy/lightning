@@ -1,17 +1,17 @@
 defmodule LightningWeb.Storybook.Common.Button do
-  alias LightningWeb.Components.Common
+  alias LightningWeb.Components.NewInputs
   use PhoenixStorybook.Story, :component
 
   # required
-  def function, do: &Common.button/1
+  def function, do: &NewInputs.button/1
 
   def variations do
     [
       %Variation{
         id: :default,
         description: "Default button",
-        attributes: %{text: "I'm a button"},
-        slots: []
+        attributes: %{},
+        slots: ["I'm a button"]
       },
       %Variation{
         id: :with_icon,

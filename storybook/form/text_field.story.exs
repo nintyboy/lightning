@@ -8,7 +8,7 @@ defmodule LightningWeb.Storybook.Form.TextField do
   def template do
     """
     <.form for={%{}} as={:story} :let={f} class="w-full">
-      <.lsb-variation form={f}/>
+      <.variation form={f}/>
     </.form>
     """
   end

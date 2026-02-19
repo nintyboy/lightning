@@ -16,4 +16,11 @@ defmodule Storybook.Root do
       icon: {:fa, "hand-wave", :thin}
     ]
   end
+
+  def entry("react") do
+    [
+      name: "React Components",
+      icon: {:fa, "react", :brands, "lsb-mr-1"}
+    ]
+  end
 end
