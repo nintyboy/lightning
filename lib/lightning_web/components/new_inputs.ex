@@ -219,7 +219,7 @@ defmodule LightningWeb.Components.NewInputs do
   end
 
   defp button_base_classes do
-    "rounded-md text-sm font-semibold shadow-xs phx-submit-loading:opacity-75"
+    "rounded-md text-sm font-semibold shadow-xs phx-submit-loading:opacity-75 font-sans"
   end
 
   defp button_size_classes("sm"), do: "px-2.5 py-1.5"
@@ -231,7 +231,7 @@ defmodule LightningWeb.Components.NewInputs do
       "primary" => %{
         disabled: "bg-primary-300 text-white",
         enabled:
-          "bg-primary-600 hover:bg-primary-500 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          "bg-primary-600 hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
       },
       "secondary" => %{
         disabled: "bg-gray-50 text-gray-400 ring-1 ring-gray-200 ring-inset",

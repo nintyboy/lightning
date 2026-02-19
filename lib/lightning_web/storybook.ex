@@ -16,6 +16,7 @@ defmodule LightningWeb.Storybook do
       asset_hash: &LightningWeb.Storybook.asset_hash/1
   end
 
+  @spec asset_hash(any()) :: <<>>
   @doc """
   Returns the asset hash for cache busting.
   In development, we return an empty string to disable caching.
