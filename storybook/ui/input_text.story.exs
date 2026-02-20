@@ -13,6 +13,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "text",
           name: "username",
           label: "Username",
+          value: "",
           placeholder: "Enter username"
         }
       },
@@ -23,6 +24,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "email",
           name: "email",
           label: "Email Address",
+          value: "",
           placeholder: "you@example.com"
         }
       },
@@ -33,6 +35,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "password",
           name: "password",
           label: "Password",
+          value: "",
           placeholder: "Enter password"
         }
       },
@@ -43,6 +46,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "number",
           name: "age",
           label: "Age",
+          value: "",
           placeholder: "Enter age"
         }
       },
@@ -53,6 +57,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "tel",
           name: "phone",
           label: "Phone Number",
+          value: "",
           placeholder: "(555) 555-5555"
         }
       },
@@ -63,6 +68,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           type: "url",
           name: "website",
           label: "Website",
+          value: "",
           placeholder: "https://example.com"
         }
       },
@@ -72,7 +78,8 @@ defmodule LightningWeb.Storybook.UI.InputText do
         attributes: %{
           type: "date",
           name: "birthday",
-          label: "Birthday"
+          label: "Birthday",
+          value: ""
         }
       },
       %Variation{
@@ -81,7 +88,8 @@ defmodule LightningWeb.Storybook.UI.InputText do
         attributes: %{
           type: "time",
           name: "appointment",
-          label: "Appointment Time"
+          label: "Appointment Time",
+          value: ""
         }
       },
       %Variation{
@@ -92,6 +100,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           name: "api_key",
           label: "API Key",
           sublabel: "You can find this in your account settings",
+          value: "",
           placeholder: "sk_..."
         }
       },
@@ -103,6 +112,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           name: "required_email",
           label: "Email",
           required: true,
+          value: "",
           placeholder: "Required field"
         }
       },
@@ -136,6 +146,7 @@ defmodule LightningWeb.Storybook.UI.InputText do
           name: "field_with_tooltip",
           label: "Field with Info",
           tooltip: "This is additional information about this field",
+          value: "",
           id: "tooltip-input"
         }
       }

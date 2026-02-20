@@ -13,6 +13,7 @@ defmodule LightningWeb.Storybook.UI.InputTextarea do
           type: "textarea",
           name: "description",
           label: "Description",
+          value: "",
           placeholder: "Enter a description..."
         }
       },
@@ -34,6 +35,7 @@ defmodule LightningWeb.Storybook.UI.InputTextarea do
           type: "textarea",
           name: "notes",
           label: "Notes",
+          value: "",
           placeholder: "Enter notes...",
           rows: 8
         }
@@ -46,6 +48,7 @@ defmodule LightningWeb.Storybook.UI.InputTextarea do
           name: "message",
           label: "Message",
           required: true,
+          value: "",
           placeholder: "This field is required"
         }
       },
@@ -78,8 +81,8 @@ defmodule LightningWeb.Storybook.UI.InputTextarea do
           type: "codearea",
           name: "code",
           label: "JavaScript Code",
-          placeholder: "Enter code here...",
-          value: "function hello() {\n  console.log('Hello, world!');\n}"
+          value: "function hello() {\n  console.log('Hello, world!');\n}",
+          placeholder: "Enter code here..."
         }
       },
       %Variation{

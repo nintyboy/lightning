@@ -14,7 +14,7 @@ defmodule LightningWeb.Storybook.UI.InputToggle do
           id: "toggle-1",
           name: "notifications",
           label: "Enable Notifications",
-          checked: false
+          value: false
         }
       },
       %Variation{
@@ -25,7 +25,7 @@ defmodule LightningWeb.Storybook.UI.InputToggle do
           id: "toggle-2",
           name: "dark_mode",
           label: "Dark Mode",
-          checked: true
+          value: true
         }
       },
       %Variation{
@@ -36,7 +36,7 @@ defmodule LightningWeb.Storybook.UI.InputToggle do
           id: "toggle-3",
           name: "disabled_feature",
           label: "Disabled Feature",
-          checked: false,
+          value: false,
           disabled: true
         }
       },
@@ -48,7 +48,7 @@ defmodule LightningWeb.Storybook.UI.InputToggle do
           id: "toggle-4",
           name: "locked_setting",
           label: "Locked Setting",
-          checked: true,
+          value: true,
           disabled: true
         }
       },
@@ -61,7 +61,7 @@ defmodule LightningWeb.Storybook.UI.InputToggle do
           name: "auto_save",
           label: "Auto Save",
           sublabel: "Automatically save your work every 30 seconds",
-          checked: true
+          value: true
         }
       },
       %Variation{

@@ -9,8 +9,9 @@ defmodule LightningWeb.Storybook do
       otp_app: :lightning_web,
       content_path: Path.expand("../../storybook", __DIR__),
       # assets path are remote path, not local file-system paths
-      css_path: "/assets/storybook.css",
-      js_path: "/assets/storybook.js",
+      css_path:
+        "https://app.openfn.org/assets/app-15e399ecbc58855c09a47e3e57a44555.css",
+      js_path: "/assets/js/storybook.js",
       sandbox_class: "lightning-web",
       # asset hashing function for cache busting
       asset_hash: &LightningWeb.Storybook.asset_hash/1

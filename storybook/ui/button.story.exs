@@ -3,6 +3,7 @@ defmodule LightningWeb.Storybook.UI.Button do
   use PhoenixStorybook.Story, :component
 
   def function, do: &NewInputs.button/1
+  def container, do: :iframe
 
   def variations do
     [
@@ -11,6 +12,8 @@ defmodule LightningWeb.Storybook.UI.Button do
         description: "Primary button (default theme)",
         attributes: %{
           theme: "primary",
+          type: "button",
+          size: "md",
           enabled: true,
           tooltip: "I am a primary button"
         },

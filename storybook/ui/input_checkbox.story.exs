@@ -13,7 +13,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           type: "checkbox",
           name: "agree",
           label: "I agree to the terms",
-          checked: false
+          value: "false"
         }
       },
       %Variation{
@@ -23,7 +23,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           type: "checkbox",
           name: "subscribe",
           label: "Subscribe to newsletter",
-          checked: true
+          value: "true"
         }
       },
       %Variation{
@@ -34,7 +34,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           name: "accept_terms",
           label: "Accept Terms and Conditions",
           required: true,
-          checked: false
+          value: "false"
         }
       },
       %Variation{
@@ -45,7 +45,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           name: "disabled_option",
           label: "Disabled option",
           disabled: true,
-          checked: false
+          value: "false"
         }
       },
       %Variation{
@@ -56,7 +56,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           name: "preset_option",
           label: "Pre-selected option",
           disabled: true,
-          checked: true
+          value: "true"
         }
       },
       %Variation{
@@ -66,7 +66,7 @@ defmodule LightningWeb.Storybook.UI.InputCheckbox do
           type: "checkbox",
           name: "must_agree",
           label: "You must agree to continue",
-          checked: false,
+          value: "false",
           errors: ["must be accepted"]
         }
       }

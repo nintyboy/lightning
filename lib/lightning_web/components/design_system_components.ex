@@ -278,7 +278,7 @@ defmodule LightningWeb.Components.DesignSystemComponents do
   end
 
   defp input_base_classes do
-    "focus:outline focus:outline-2 focus:outline-offset-1 block w-full rounded-lg text-slate-900 focus:ring-0 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+    "focus:outline focus:outline-2 focus:outline-offset-1 block w-full rounded-lg text-slate-900 focus:ring-0 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 placeholder:font-sans font-sans"
   end
 
   defp input_state_classes([]),

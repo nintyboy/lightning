@@ -109,7 +109,7 @@ defmodule LightningWeb.Components.NewInputs do
     * If the `tooltip` attribute is provided and the button is disabled, a tooltip will be displayed to explain why the button is not clickable.
   """
   attr :type, :string, default: "button", values: ["button", "submit"]
-  attr :class, :any, default: ""
+  attr :class, :any, default: "font-sans"
   attr :theme, :string, values: @button_themes
   attr :size, :string, default: "md", values: @button_sizes
   attr :tooltip, :any, default: nil
@@ -154,7 +154,7 @@ defmodule LightningWeb.Components.NewInputs do
 
   For available options, see `Phoenix.Component.link/1`.
   """
-  attr :class, :any, default: ""
+  attr :class, :any, default: "font-sans"
   attr :theme, :string, values: @button_themes, required: true
   attr :size, :string, default: "md", values: @button_sizes
 
@@ -219,7 +219,7 @@ defmodule LightningWeb.Components.NewInputs do
   end
 
   defp button_base_classes do
-    "rounded-md text-sm font-semibold shadow-xs phx-submit-loading:opacity-75 font-sans"
+    "rounded-md text-sm font-semibold shadow-xs phx-submit-loading:opacity-75 "
   end
 
   defp button_size_classes("sm"), do: "px-2.5 py-1.5"
@@ -231,7 +231,7 @@ defmodule LightningWeb.Components.NewInputs do
       "primary" => %{
         disabled: "bg-primary-300 text-white",
         enabled:
-          "bg-primary-600 hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          "bg-primary-600 hover:bg-primary-500 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
       },
       "secondary" => %{
         disabled: "bg-gray-50 text-gray-400 ring-1 ring-gray-200 ring-inset",
@@ -309,7 +309,7 @@ defmodule LightningWeb.Components.NewInputs do
 
   attr :id, :string, required: true
   attr :tooltip, :string, required: true
-  attr :class, :string, default: ""
+  attr :class, :string, default: "font-sans"
   attr :icon, :string, default: "hero-information-circle-solid"
   attr :icon_class, :string, default: "w-4 h-4 text-primary-600 opacity-50"
 
@@ -405,7 +405,7 @@ defmodule LightningWeb.Components.NewInputs do
       ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
 
-  attr :class, :string, default: ""
+  attr :class, :string, default: "font-sans"
 
   attr :stretch, :boolean,
     default: false,
@@ -456,7 +456,7 @@ defmodule LightningWeb.Components.NewInputs do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label :if={@label} class="mb-2" for={@id}>
+      <.label :if={@label} class="mb-2 dark:text-slate-300" for={@id}>
         {@label}<span :if={Map.get(@rest, :required, false)} class="text-red-500"> *</span>
         <.tooltip_for_label :if={@tooltip} id={"#{@id}-tooltip"} tooltip={@tooltip} />
       </.label>
@@ -605,7 +605,7 @@ defmodule LightningWeb.Components.NewInputs do
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name} class={@stretch && "h-full"}>
+    <div phx-feedback-for={@name} class={@stretch && "h-full "}>
       <.label :if={@label} for={@id}>
         {@label}<span :if={Map.get(@rest, :required, false)} class="text-red-500"> *</span>
       </.label>
@@ -777,13 +777,13 @@ defmodule LightningWeb.Components.NewInputs do
         <span
           :for={tag <- @tags}
           id={"tag-#{String.replace(tag, " ", "-")}"}
-          class="inline-flex items-center rounded-md bg-blue-50 p-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 mr-1 my-1"
+          class="inline-flex items-center justify-center align-center gap-1 rounded-md bg-blue-50 p-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 mr-1 my-1 "
           data-tag={tag}
         >
           {tag}
           <button
             type="button"
-            class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20"
+            class="group flex rounded-sm hover:bg-gray-500/20 mt-0.5"
           >
             <span class="sr-only">Remove</span>
             <.icon
@@ -1016,7 +1016,7 @@ defmodule LightningWeb.Components.NewInputs do
   attr :type, :string, required: true
   attr :value, :any
   attr :errors, :list, default: []
-  attr :class, :string, default: ""
+  attr :class, :string, default: "font-sans"
 
   attr :rest, :global,
     include:
@@ -1031,7 +1031,7 @@ defmodule LightningWeb.Components.NewInputs do
       id={@id}
       value={@value}
       class={[
-        "focus:outline focus:outline-2 focus:outline-offset-1 block w-full rounded-lg text-slate-900 focus:ring-0 sm:text-sm sm:leading-6",
+        "focus:outline focus:outline-2 focus:outline-offset-1 block w-full rounded-lg text-slate-900 focus:ring-0 sm:text-sm sm:leading-6 ",
         "phx-no-feedback:border-slate-300 phx-no-feedback:focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
         @errors == [] &&
           "border-slate-300 focus:border-slate-400 focus:outline-primary-600",
@@ -1057,7 +1057,7 @@ defmodule LightningWeb.Components.NewInputs do
   attr :name, :string, required: true
   attr :value, :any
   attr :errors, :list, default: []
-  attr :class, :any, default: ""
+  attr :class, :any, default: "font-sans"
 
   attr :rest, :global,
     include:
@@ -1176,7 +1176,7 @@ defmodule LightningWeb.Components.NewInputs do
   Renders a label.
   """
   attr :for, :any, default: nil
-  attr :class, :any, default: ""
+  attr :class, :any, default: "font-sans"
   attr :rest, :global
   slot :inner_block, required: true
 

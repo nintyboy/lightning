@@ -13,6 +13,7 @@ defmodule LightningWeb.Storybook.UI.InputSelect do
           type: "select",
           name: "country",
           label: "Country",
+          value: nil,
           options: [
             {"United States", "us"},
             {"Canada", "ca"},
@@ -28,6 +29,7 @@ defmodule LightningWeb.Storybook.UI.InputSelect do
           name: "role",
           label: "Role",
           prompt: "Select a role",
+          value: "",
           options: [
             {"Admin", "admin"},
             {"Editor", "editor"},
@@ -59,6 +61,7 @@ defmodule LightningWeb.Storybook.UI.InputSelect do
           label: "Category",
           required: true,
           prompt: "Choose a category",
+          value: "",
           options: [
             {"Technology", "tech"},
             {"Business", "biz"},
@@ -73,6 +76,7 @@ defmodule LightningWeb.Storybook.UI.InputSelect do
           type: "select",
           name: "invalid_select",
           label: "Selection",
+          value: "",
           errors: ["is required"],
           options: [
             {"Option 1", "opt1"},
@@ -123,6 +127,7 @@ defmodule LightningWeb.Storybook.UI.InputSelect do
           id: "region-select",
           label: "Region",
           tooltip: "Choose the region closest to your users",
+          value: nil,
           options: [
             {"US East", "us-east"},
             {"US West", "us-west"},
