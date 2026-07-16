@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button Consolidation POC — Lightning Design System</title>
+<style>
+  :root { --ink:#1a1a2e; --muted:#5c5c70; --line:#e4e4ee; --accent:#4f46e5; --bg:#fafafc; --card:#ffffff; --ok:#0a7d33; --warn:#b45309; --bad:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--bg); }
+  main { max-width:980px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
+  h1 { font-size:1.7rem; margin:.2rem 0 .3rem; }
+  h2 { font-size:1.25rem; margin:2.6rem 0 .6rem; padding-top:1rem; border-top:2px solid var(--line); }
+  h3 { font-size:1.02rem; margin:1.4rem 0 .4rem; }
+  .sub { color:var(--muted); margin:0 0 1.2rem; }
+  table { border-collapse:collapse; width:100%; font-size:.86rem; margin:.8rem 0; }
+  th, td { border:1px solid var(--line); padding:.45rem .6rem; text-align:left; vertical-align:top; }
+  th { background:#f0f0f7; font-weight:600; }
+  code, pre { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.82em; }
+  code { background:#eeeef5; padding:.1em .35em; border-radius:4px; }
+  pre { background:#14142b; color:#e8e8f2; padding: .8rem 1rem; border-radius:8px; overflow-x:auto; line-height:1.5; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:1rem 1.2rem; margin:.8rem 0; }
+  .tag { display:inline-block; font-size:.72rem; font-weight:700; padding:.1rem .5rem; border-radius:99px; vertical-align:middle; }
+  .ok { background:#e5f6ea; color:var(--ok); } .warn { background:#fef3e2; color:var(--warn); } .bad { background:#fde8e8; color:var(--bad); } .info { background:#e8e8fd; color:var(--accent); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; } @media (max-width:760px){ .grid2{grid-template-columns:1fr;} }
+  .conf { font-weight:700; }
+  .demo { display:inline-flex; gap:.6rem; align-items:center; flex-wrap:wrap; padding:.7rem; background:#fff; border:1px dashed var(--line); border-radius:8px; }
+  .btn { border-radius:6px; font-size:.875rem; padding:.5rem .75rem; border:0; cursor:pointer; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+  .b-primary { background:#4f46e5; color:#fff; } .b-secondary { background:#fff; color:#111827; box-shadow:inset 0 0 0 1px #d1d5db, 0 1px 2px rgba(0,0,0,.05); } .b-danger { background:#dc2626; color:#fff; } .b-ghost { background:transparent; color:#4b5563; font-weight:400; box-shadow:none; } .b-disabled { background:#a5b4fc; color:#fff; }
+  .overflow { overflow-x:auto; }
+  ol li, ul li { margin:.25rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Button Consolidation POC</h1>
+<p class="sub">Lightning Design System · branch <code>feature/button-poc</code> · 2026-07-15 ·
+source of truth: <code>assets/packages/ui/docs/poc/button-risk-log.md</code> · verifiable inventory: <code>assets/packages/ui/docs/poc/button-manifest.md</code></p>
+
+<div class="card">
+<strong>TL;DR.</strong> One canonical Button now exists per stack — <code>lib/lightning_web/components/ui/button.ex</code> (HEEx)
+and <code>@openfn/ui</code>'s <code>Button.tsx</code> (React) — both styled from one shared recipe,
+<code>assets/packages/ui/recipes/button.json</code>. 175 existing component call sites carried over unchanged;
+2 duplicate implementations deleted; 6 raw one-offs migrated; the remaining 61 raw buttons were <em>classified,
+not force-migrated</em> — 90% of them turn out to be the anatomy of other components (27 are one identical modal-close X).
+Both stacks now also carry icon-only buttons and a <code>SplitButton</code> (HEEx twin built from the app's own
+<code>Phoenix.LiveView.JS</code>/<code>phx-click-away</code> conventions), with matching a11y/i18n guarantees.
+Four real bugs were found and fixed by actually loading components in a browser, not by trusting class-string
+tests — see §6c. Full test suite green (only pre-existing flakiness that also fails on <code>main</code>).
+</div>
+
+<h2>1. Who this serves</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>The UX designer (Tyrell)</h3>
+    <p>Wants exactly one Button per stack matching the Figma "Buttons" set; every button in the app an instance of it;
+    Figma vocabulary for variants/sizes, with <code>Warning</code>→<code>danger</code> as the one logged exception.</p>
+    <p><strong>How this serves them:</strong> one recipe now defines every button's look; the two stacks can no longer drift
+    (a live secondary-variant drift was found and killed); a <code>ghost</code> variant formalizes the most common one-off;
+    the storybook story now shows the real component. Divergences that need design decisions are logged, not decided unilaterally.</p>
+  </div>
+  <div class="card">
+    <h3>The engineers</h3>
+    <p>(X) zero regressions across 175 call sites, esp. submit semantics; (Y) reviewable, mechanical, batched diffs;
+    (Z) no new maintenance burden and a small stable API.</p>
+    <p><strong>How this serves them:</strong> the canonical HEEx button is a verbatim move — all 175 call sites compile
+    untouched; rendered class sets proven identical; each migration is its own commit with a risk entry; a compile-time
+    guard fails the build if recipe and component API disagree; grep gates provided for CI.</p>
+  </div>
+</div>
+
+<h2>2. Census (fan-out) with before → after counts</h2>
+<div class="overflow">
+<table>
+<tr><th>Implementation</th><th>Where</th><th>Before</th><th>After</th><th>Disposition</th></tr>
+<tr><td><code>&lt;.button&gt;</code> + <code>button_link</code> (canonical)</td><td>new_inputs.ex → <strong>ui/button.ex</strong></td><td>163 + 12 refs</td><td>163 + 12 (unchanged)</td><td><span class="tag ok">MOVED</span> recipe-backed, API preserved</td></tr>
+<tr><td>React <code>Button.tsx</code></td><td>collaborative-editor</td><td>11 usages, hard-coded classes</td><td>11 usages, recipe-driven</td><td><span class="tag ok">REWIRED</span></td></tr>
+<tr><td><code>submit_button</code></td><td>form.ex:10</td><td>1 call site</td><td>0 — <code>grep submit_button lib</code> = 0</td><td><span class="tag ok">DELETED</span> + migrated</td></tr>
+<tr><td><code>cancel_button</code></td><td>credentials.ex:71</td><td>12 usages</td><td>12 (kept)</td><td><span class="tag info">FINDING</span> already delegates to <code>&lt;.button&gt;</code> — inventory misclassified</td></tr>
+<tr><td><code>button_loader</code></td><td>loaders.ex:31</td><td>0 usages</td><td>deleted</td><td><span class="tag info">FINDING</span> dead code; no <code>loading</code> state built (YAGNI + Phase 0 gate)</td></tr>
+<tr><td>Raw <code>&lt;button&gt;</code> in live/**</td><td>39 files</td><td>67</td><td>61</td><td><span class="tag ok">6 MIGRATED</span> <span class="tag warn">61 DEFERRED by owning component</span> (see §4)</td></tr>
+<tr><td>Ghost one-offs</td><td>ai_assistant etc.</td><td>pattern only</td><td><code>ghost</code> variant in recipe; 2 migrated</td><td><span class="tag ok">FORMALIZED</span></td></tr>
+<tr><td>Icon-only</td><td>—</td><td>one-offs</td><td><code>size="icon"</code> in recipe (unused yet)</td><td><span class="tag warn">API READY</span>; Figma has full Icon sets</td></tr>
+<tr><td>Petal buttons</td><td>—</td><td>0</td><td>0</td><td>none exist</td></tr>
+</table>
+</div>
+<p>Grep commands for every number are recorded in the risk log §Census and manifest §5.</p>
+
+<h2>3. Before / after styling</h2>
+
+<h3>Visual reference (recreated with the recipe's classes)</h3>
+<div class="demo">
+  <button class="btn b-primary">Primary</button>
+  <button class="btn b-secondary">Secondary</button>
+  <button class="btn b-danger">Danger</button>
+  <button class="btn b-ghost">Ghost</button>
+  <button class="btn b-disabled" disabled>Disabled</button>
+</div>
+<p class="sub">Indicative only — real rendering is Tailwind in-app. No dev-server screenshots were captured in this run
+(logged honestly in confidence ratings); class-set equivalence below is the verification used.</p>
+
+<h3>HEEx primary (identical set, reorganized source)</h3>
+<pre>BEFORE (new_inputs.ex, module-attribute strings)
+rounded-md text-sm font-semibold shadow-xs phx-submit-loading:opacity-75
+cursor-pointer disabled:cursor-auto px-3 py-2
+bg-primary-600 hover:bg-primary-500 text-white
+focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600
+
+AFTER (ui/button.ex, recipe-driven — rendered output, assets/packages/ui/docs/poc/rendered-classes-after.txt)
+rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto
+px-3 py-2 font-semibold shadow-xs bg-primary-600 hover:bg-primary-500 text-white
+focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600
+
+→ same class SET; font/shadow moved from base into variant strings so ghost can differ.</pre>
+
+<h3>React secondary — the drift the recipe killed <span class="tag warn">intentional visible change</span></h3>
+<pre>BEFORE (Button.tsx, hand-copied)     AFTER (recipe = HEEx winning base)
+bg-white text-gray-900               bg-white hover:bg-gray-50 text-gray-900
+inset-ring inset-ring-gray-300       ring-1 ring-gray-300 ring-inset
+hover:inset-ring-gray-400            (hover = background tint, not ring darken)
+disabled:bg-gray-50 …                disabled → bg-gray-50 text-gray-400 ring-gray-200</pre>
+
+<h3>submit_button → canonical primary <span class="tag warn">intentional consolidation deltas</span></h3>
+<pre>BEFORE: inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm
+        font-medium rounded-md text-white focus:ring-2 … enabled:bg-primary-600
+        enabled:hover:bg-primary-700 disabled:bg-primary-300
+AFTER:  canonical primary (px-3, font-semibold, hover:bg-primary-500, focus-visible:outline)
+DELTAS: hover 700→500 · font-medium→semibold · px-4→px-3 · focus ring→outline</pre>
+
+<h3>Batch A (byte-equivalent) &amp; Batch B (ghost)</h3>
+<pre>Batch A before: inline-flex items-center gap-x-2 rounded-md bg-white px-3.5 py-2.5 text-sm
+                font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50
+Batch A after:  &lt;.button theme="secondary" size="lg" class="inline-flex items-center gap-x-2 …"&gt;
+                → identical class set (size lg = px-3.5 py-2.5).
+
+Batch B after:  &lt;.button theme="ghost" size="sm"&gt; — deltas: px-3→px-2.5,
+                focus:ring-indigo→focus-visible:outline-gray, copy-button gray-400→gray-600.</pre>
+
+<h2>4. Subtleties, hard parts, judgment calls</h2>
+<ol>
+  <li><strong>Warning vs danger.</strong> Kept <code>danger</code> (code vocabulary); Figma says <code>Warning</code>.
+    Logged as the known Phase 0 naming gate. Complication discovered: HEEx <em>already has</em> a separate
+    <code>warning</code> (yellow) theme with 1 call site, plus <code>success</code> (2) — neither is in Figma. The recipe
+    carries both; the designer needs to rule on their future.</li>
+  <li><strong>Radius divergence.</strong> Figma buttons read ≈<code>rounded-lg</code>; production is <code>rounded-md</code>.
+    Recipe encodes production. Not resolved unilaterally.</li>
+  <li><strong>The 175 wasn't wrong — but two inventory rows were.</strong> <code>cancel_button</code> is a composition,
+    not a duplicate (kept); <code>button_loader</code> was dead code (deleted, no loading state built). Audit-by-reading
+    needs verify-by-grep before migration — exactly what this loop does.</li>
+  <li><strong>Most raw buttons belong to other components.</strong> 27 of 61 remaining are ONE identical modal-close X
+    (the HEEx twin of React's <code>nakedClose</code>); 9 are <code>table-action</code>/<code>icon-button</code> utilities;
+    plus toggles, tab bars, radio cards, chip dismissals, link-styled buttons. Force-migrating them would bloat Button's API
+    (padding-less sizes, switch styling). Judgment call: defer each to its owning component. One future Modal close-slot
+    change retires 27 one-offs at a stroke.</li>
+  <li><strong>Submit semantics preserved by construction.</strong> <code>type="submit"</code> is a first-class attr;
+    <code>phx-disable-with</code>/<code>phx-click</code>/<code>onclick</code> flow through <code>:global</code>;
+    <code>disabled</code> is in the include list. The one migrated submit (project Save) is covered by 130 green LiveView tests.</li>
+  <li><strong>Recipe compile-time loading.</strong> HEEx reads the JSON at compile time (<code>@external_resource</code> →
+    edits recompile; zero runtime cost; works in releases). Trade-offs accepted: an <code>assets/</code> file now participates
+    in the Elixir build (Docker build ordering must copy it before <code>mix compile</code> — CI note), and a compile-time
+    guard fails the build if recipe keys and component attrs diverge (drift caught at compile, not in prod).</li>
+  <li><strong>Disabled-cursor divergence kept per stack.</strong> HEEx ships <code>disabled:cursor-auto</code>, React
+    <code>disabled:cursor-not-allowed</code> (and ui-patterns.md mandates not-allowed). Unifying is a one-line recipe change
+    once the designer picks; preserving production exactly won this round.</li>
+  <li><strong>Packaging deferred.</strong> Recipe lives at <code>assets/packages/ui/recipes/</code> (the plan's target path),
+    but the React Button stayed in place importing it — npm-workspace wiring was not needed to test the recipe idea and
+    would have been a yak-shave in this POC.</li>
+  <li><strong>Environment findings</strong> (not POC changes, logged for the team): stale <code>crc32cer</code> CMake cache
+    and a pre-commit hook line 3 both still point at the repo's old path (<code>…/Projects/lightning</code>); the
+    <code>lightning-postgres</code> container was stopped. First fixed properly, second is harmless but should be fixed,
+    third restarted.</li>
+  <li><strong>Skipped/reverted entries: none were forced.</strong> Nothing hit the stop conditions (no Yjs internals touched,
+    no breaking API change needed, tests stayed green). The frozen legacy editor received exactly one import line, which its
+    14 existing <code>&lt;.button&gt;</code> refs made compile-mandatory.</li>
+</ol>
+
+<h2>5. Per-switch confidence (1–5)</h2>
+<table>
+<tr><th>Switch</th><th>Confidence</th><th>Why (earned, not decorative)</th></tr>
+<tr><td>1. Canonical build + repoint (175 sites)</td><td class="conf">4/5</td><td>compile w/ warnings-as-errors; rendered class-set equivalence captured; tsc + 39 consumer unit tests; full suite green vs baseline. Missing: in-browser pixel check.</td></tr>
+<tr><td>2. submit_button</td><td class="conf">4/5</td><td>130 ProjectLiveTest green; submit semantics verified by attr analysis; visual delta intentional. No browser check.</td></tr>
+<tr><td>3. button_loader delete</td><td class="conf">5/5</td><td>0 references proven by grep before and after; compile green.</td></tr>
+<tr><td>4. Batch A (3 secondary)</td><td class="conf">4/5</td><td>Byte-identical class sets (string comparison) + 4 LiveView test files green. No browser check.</td></tr>
+<tr><td>5. Batch B (2 ghost)</td><td class="conf">3/5</td><td>Tests green but deltas are visible-by-design and NOT eyeballed in a browser; lowest confidence in the set.</td></tr>
+<tr><td>6. Deferral of 61</td><td class="conf">5/5</td><td>No code changed; every item enumerated with owner + grep evidence.</td></tr>
+</table>
+
+<h2>6. Overall merge risk: <span class="tag warn">LOW-MEDIUM</span></h2>
+<ol>
+  <li><strong>No pixel-level verification anywhere.</strong> All equivalence is at the class-string level.
+      <em>Mitigation:</em> boot the dev server and eyeball 5 screens (project settings Save, backup codes, user-deletion modal,
+      AI assistant panel, any collab-editor modal) before merge — 15 minutes; or land Phase 2's visual-regression harness first.</li>
+  <li><strong>React secondary hover changed in the collab editor</strong> (drift unification).
+      <em>Mitigation:</em> designer sign-off on the side-by-side in §3; revert is a one-line recipe edit.</li>
+  <li><strong>Recipe couples the Elixir build to an assets file.</strong> A missing/renamed recipe breaks compile (by design), and
+      container builds must copy <code>assets/packages/ui/recipes/</code> before <code>mix compile</code>.
+      <em>Mitigation:</em> verify the Dockerfile copies assets before compile (it copies the app dir wholesale today); the
+      compile guard turns silent drift into loud failure.</li>
+</ol>
+
+<h2>6b. Hardening round (review feedback, 2026-07-16)</h2>
+<div class="card">
+<p>Reviewer (Tyrell) flagged the first pass as under-delivering the plan's DoD. All addressed:</p>
+<table>
+<tr><th>Gap</th><th>Resolution</th></tr>
+<tr><td>A — file structure</td><td>Real <code>@openfn/ui</code> npm workspace (<code>assets/packages/ui</code> with package.json/tsconfig/.storybook/src/button), consumers import <code>'@openfn/ui'</code>, old Button.tsx deleted</td></tr>
+<tr><td>B — CVA</td><td><code>buttonVariants = cva()</code> built from the recipe; enabled/disabled modeled as a <code>vstate</code> dimension + compound variants (hover can never leak into disabled; classes byte-equal to HEEx)</td></tr>
+<tr><td>C — full variant surface</td><td>React now exposes all 7 variants + 4 sizes (was 3 + hardcoded md); recipe-contract tests fail if either side drops one</td></tr>
+<tr><td>D — missing variants</td><td><code>iconLeft/iconRight</code> (React) + <code>icon/icon_right</code> (HEEx); icon-only requires aria-label at the type level; <strong>SplitButton built</strong> on react-aria MenuTrigger (its 3 bespoke call sites migrate as a follow-up batch)</td></tr>
+<tr><td>E — testing</td><td>11 vitest tests (recipe contract, press/keyboard/submit behavior, icon semantics, axe via vitest-axe incl. open menu) + 7 ExUnit tests for the HEEx twin. Coverage: 92.3% stmts / 100% funcs</td></tr>
+<tr><td>F — Storybook</td><td>Storybook 9 (react-vite) in the package, a11y addon at error level, Button + SplitButton stories with play() tests; build green</td></tr>
+<tr><td>G — i18n</td><td>No English defaults anywhere (nakedClose's 'Close panel' default removed; consumers supply strings; SplitButton menuLabel required)</td></tr>
+<tr><td>H — a11y</td><td>react-aria-components as the behavior base; axe tests; decorative icons aria-hidden</td></tr>
+<tr><td>I — docs</td><td><code>packages/ui/README.md</code>: run / test / coverage / how-to-change-styling workflow</td></tr>
+</table>
+<p><strong>New judgment calls:</strong> package is self-contained (inline SVG icons — the app's <code>tailwind.config.ts</code> heroicons plugin uses <code>__dirname</code> and can't load under vite ESM; also the right property for a publishable package); Storybook pinned to 9.1.20 (v10 needs vitest 4); <code>aria-busy</code> dropped from loading (react-aria filters it; busy semantics belong with the Phase-0-gated spinner); <strong>onClick now runs through react-aria's press system</strong> (also fires on Enter/Space; consumer + new tests all green — flag for reviewers).</p>
+<p><strong>Confidence: 4/5</strong> — tsc parity with main (467/467 diffed), 50/50 vitest, 7/7 ExUnit, esbuild/tailwind/storybook builds green; in-browser pixel check still outstanding (same as Switch 1).</p>
+</div>
+
+<h2>6c. HEEx feature parity + live-verification bug round (Switches 8–12)</h2>
+<div class="card">
+<p>Reviewer asked for HEEx to match React on icons, split buttons, a11y, and i18n, then verified everything by actually
+opening it in a connected browser rather than reading test output. That single habit surfaced 4 real bugs that every
+prior class-string/compile check had missed.</p>
+<table>
+<tr><th>Switch</th><th>What was found</th><th>Fix</th></tr>
+<tr><td>10 — feature parity</td><td><code>:inner_block</code> was <code>required: true</code>, making icon-only buttons impossible; no HEEx <code>SplitButton</code> existed at all</td><td><code>:inner_block</code> relaxed to optional + runtime <code>aria-label</code> guard (render-time equivalent of React's <code>ButtonIconOnly</code> type); new <code>ui/split_button.ex</code> built on <code>Phoenix.LiveView.JS</code> + the app's existing <code>phx-click-away</code>/<code>role="menu"</code> conventions</td></tr>
+<tr><td>10 — escape-to-close bug</td><td>Two attempts before the working one: <code>phx-window-keydown</code> fired globally, letting one split-button instance steal focus from another; plain <code>phx-keydown</code> on the wrapper <code>&lt;div&gt;</code> silently never fired (LiveView's non-window binding matches <code>event.target</code> directly, no ancestor lookup)</td><td>Binding moved onto each menu-item <code>&lt;button&gt;</code> — the element focus actually lands on. Verified with two split-buttons open independently in a live browser; locked down with a structural regression test</td></tr>
+<tr><td>8 — storybook 500</td><td><code>phoenix_storybook</code> was broken on <code>main</code> (<code>otp_app: :lightning_web</code> should have been <code>:lightning</code>)</td><td>Fixed in <code>lib/lightning_web/storybook.ex</code></td></tr>
+<tr><td>9 — fonts</td><td>phoenix_storybook doesn't use the app's root layout, so Inter/Fira Code never loaded; a first attempt using local-file <code>@import</code> inlined unhashed, unresolvable paths</td><td>Runtime <code>@import url(...)</code> against the pre-built hashed font CSS, plus explicit <code>!important</code> overrides for phoenix_storybook's own higher-specificity font rule</td></tr>
+<tr><td>11 — invisible chevron</td><td><code>assets/css/storybook.css</code> never registered the heroicons Tailwind plugin (missing <code>@config</code>) — <code>hero-chevron-down</code> existed in the HTML with zero matching CSS, so it just didn't render (no error)</td><td>Added <code>@config '../tailwind.config.ts'</code> — safe here specifically because this stylesheet builds via the native Tailwind CLI, unlike the React Storybook's Vite-built stylesheet where the same line breaks under ESM</td></tr>
+<tr><td>12 — icon 2px off-center</td><td>Reviewer compared the (now-visible) HEEx chevron against React's side by side and it sat visibly higher. Measured with <code>getBoundingClientRect()</code>: React offset <code>0</code>, HEEx offset <code>-2px</code>. Cause: <code>inline-block align-middle</code> is a no-op on flex items; with no <code>align-items</code> set, a flex item with an explicit size (the icon) sits at flex-start, not centered</td><td><code>self-center</code> on the icon spans — same visual result as React's per-icon <code>flex items-center</code> wrapper, without adding a DOM node</td></tr>
+</table>
+<p><strong>Why this matters more than any individual bug:</strong> every one of these was invisible to <code>mix compile --warnings-as-errors</code>, ExUnit, and Vitest — they only exist as pixels. This is the exact risk §6.1 already flagged ("no pixel-level verification anywhere") turning up in practice, twice, within one review pass. See §7 for the plan implication.</p>
+</div>
+
+<h2>7. Verdict — what this proves and disproves about the plan</h2>
+<div class="card">
+<p><strong>Proved:</strong></p>
+<ul>
+  <li><strong>The shared recipe works and is not theoretical.</strong> It immediately exposed a real production drift
+      (React vs HEEx secondary), Tailwind compiles classes straight from the JSON, both stacks consume it naturally
+      (compile-time / import), and a compile guard makes divergence loud.</li>
+  <li><strong>Verbatim-move + recipe is a safe repoint pattern for a 175-site primitive.</strong> Zero call-site churn,
+      warnings-as-errors caught every loose end, class-set equivalence is provable without screenshots.</li>
+  <li><strong>The batch + risk-log workflow is sustainable</strong> — each switch is minutes of work once the harness
+      exists; the log writes itself as you go. For 124 components the constraint is reviewer attention, not build effort,
+      matching the plan's revised bottleneck.</li>
+</ul>
+<p><strong>Disproved / must change in the plan:</strong></p>
+<ul>
+  <li><strong>The Phase 5 "one-off cleanup" framing is wrong.</strong> The 67 raw buttons are ~90% other components'
+      anatomy. Re-cut cleanup batches per OWNING component (Modal's close slot alone retires 27). The master sheet's
+      MIGRATE rows should be re-tagged with owners before batching.</li>
+  <li><strong>Inventory rows must be verify-by-grep'd at execution time</strong> — two of nine button rows were wrong
+      (cancel_button misclassified, button_loader dead). Cheap to check, expensive to trust.</li>
+  <li><strong>Visual verification must come before broad migration, not after — this is no longer theoretical.</strong>
+      §6c is direct evidence: a broken storybook, missing fonts, an entirely invisible icon, and a 2px-off-center icon
+      all compiled cleanly, passed every ExUnit/Vitest assertion, and were caught only because a reviewer opened a real
+      browser and looked. Phase 2 (Storybook + visual regression) isn't a nice-to-have prerequisite, it's the only
+      mechanism that would have caught any of these four bugs automatically.</li>
+</ul>
+<p><strong>New design gates surfaced for Phase 0:</strong> success/warning themes' future, ghost weight/colors vs Figma
+Ghost, disabled-cursor policy, the close-affordance treatment (nakedClose ⇄ 27 HEEx close X's).</p>
+</div>
+
+<p class="sub">Generated from <code>assets/packages/ui/docs/poc/button-risk-log.md</code> at the end of the run ·
+manifest with verification greps: <code>assets/packages/ui/docs/poc/button-manifest.md</code></p>
+</main>
+</body>
+</html>

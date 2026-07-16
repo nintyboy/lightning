@@ -5,7 +5,7 @@ import {
   useWorkflowReadOnly,
 } from '../../hooks/useWorkflow';
 import type { Workflow } from '../../types/workflow';
-import { Button } from '../Button';
+import { Button } from '@openfn/ui';
 import { Toggle } from '../Toggle';
 import { Tooltip } from '../Tooltip';
 

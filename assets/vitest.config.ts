@@ -20,7 +20,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./test/_setup.ts'],
-    include: ['test/**/*.test.ts', 'test/**/*.test.tsx'],
+    include: [
+      'test/**/*.test.ts',
+      'test/**/*.test.tsx',
+      'packages/*/src/**/*.test.ts',
+      'packages/*/src/**/*.test.tsx',
+    ],
     exclude: ['node_modules/**/*'],
     reporters: ['verbose', 'junit'],
     outputFile: {

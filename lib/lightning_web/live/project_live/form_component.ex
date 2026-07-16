@@ -13,7 +13,6 @@ defmodule LightningWeb.ProjectLive.FormComponent do
   use LightningWeb, :live_component
 
   import Ecto.Changeset, only: [fetch_field!: 2]
-  import LightningWeb.Components.Form
   alias LightningWeb.Live.Helpers.TableHelpers
 
   alias Lightning.Helpers

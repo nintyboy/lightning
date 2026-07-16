@@ -1,11 +1,81 @@
-/* This is your custom storybook stylesheet. */
+/* Storybook (phoenix_storybook) stylesheet.
+ * Mirrors the app's color + font tokens so recipe classes (bg-primary-*,
+ * font-sans) resolve, and scans the canonical HEEx components + recipes +
+ * stories for classes.
+ *
+ * root.html.heex (the app's real layout) links ../fonts/inter.css and
+ * fira-code.css directly — phoenix_storybook uses its own layout templates
+ * (deps/phoenix_storybook), which never include those <link> tags, so the
+ * @font-face rules are imported here instead. */
+/* Runtime CSS @import (NOT a local-file import) — the font files themselves
+ * are copied/hashed by esbuild's asset pipeline into priv/static/assets/,
+ * and only the already-built /assets/fonts/{inter,fira-code}.css correctly
+ * references those hashed filenames. Importing the *source* files here
+ * instead would inline unhashed, unresolvable url() paths.
+ * MUST stay before `@import 'tailwindcss'` — @import rules must be the
+ * first rules in the stylesheet per the CSS spec; Tailwind passes runtime
+ * url() imports through untouched but does not reorder them. */
+@import url('/assets/fonts/inter.css');
+@import url('/assets/fonts/fira-code.css');
 @import 'tailwindcss';
 
-/*
- * Put your component styling within the Tailwind utilities layer. 
- * See the https://hexdocs.pm/phoenix_storybook/sandboxing.html guide for more info.
- */
+/* Registers the hero-* icon plugin (mask-image data URIs) — without this,
+ * hero-* classes used inside stories (e.g. split_button's chevron trigger)
+ * exist in the HTML with zero matching CSS and render invisibly. Safe here
+ * because assets/css/storybook.css is built by the native Tailwind CLI
+ * (mix tailwind storybook), same as app.css; the plugin's __dirname usage
+ * only breaks under Vite/ESM bundling (see assets/packages/ui/.storybook/,
+ * a separate, Vite-built stylesheet, where this line was deliberately left
+ * out for that reason). */
+@config '../tailwind.config.ts';
 
-.lsb-sandbox {
-  font-family: inherit !important;
+@source '../../lib/lightning_web/components/ui';
+@source '../../storybook';
+@source '../packages/ui/recipes/*.json';
+
+@theme {
+  --font-sans:
+    'Inter var', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    'Fira Code VF', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+
+  --color-primary-50: var(--color-indigo-50);
+  --color-primary-100: var(--color-indigo-100);
+  --color-primary-200: var(--color-indigo-200);
+  --color-primary-300: var(--color-indigo-300);
+  --color-primary-400: var(--color-indigo-400);
+  --color-primary-500: var(--color-indigo-500);
+  --color-primary-600: var(--color-indigo-600);
+  --color-primary-700: var(--color-indigo-700);
+  --color-primary-800: var(--color-indigo-800);
+  --color-primary-900: var(--color-indigo-900);
+  --color-primary-950: var(--color-indigo-950);
+  --color-secondary-50: var(--color-gray-50);
+  --color-secondary-100: var(--color-gray-100);
+  --color-secondary-200: var(--color-gray-200);
+  --color-secondary-300: var(--color-gray-300);
+  --color-secondary-400: var(--color-gray-400);
+  --color-secondary-500: var(--color-gray-500);
+  --color-secondary-600: var(--color-gray-600);
+  --color-secondary-700: var(--color-gray-700);
+  --color-secondary-800: var(--color-gray-800);
+  --color-secondary-900: var(--color-gray-900);
+  --color-secondary-950: var(--color-gray-950);
+}
+
+/* phoenix_storybook's own bundled phoenix_storybook.css sets font-family on
+ * `.psb html.psb` / `.psb body.psb` with higher specificity than Preflight's
+ * plain `html, :host` rule, so our --font-sans/--font-mono never win the
+ * cascade without an explicit, equally-targeted override. */
+html.psb,
+.psb html.psb,
+body.psb,
+.psb body.psb {
+  font-family: var(--font-sans) !important;
+}
+
+.psb-sandbox {
+  font-family: var(--font-sans) !important;
 }

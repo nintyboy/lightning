@@ -1,11 +1,7 @@
-// If your components require any hooks or custom uploaders, or if your pages
-// require connect parameters, uncomment the following lines and declare them as
-// such:
-//
-// import * as Hooks from "./hooks";
-// import * as Params from "./params";
-// import * as Uploaders from "./uploaders";
+// Storybook (phoenix_storybook) JS entry: register the app's LiveView hooks
+// so stories using phx-hook (e.g. Tooltip on disabled buttons) work.
+import * as Hooks from './hooks';
 
-// (function () {
-//   window.storybook = { Hooks, Params, Uploaders };
-// })();
+(function () {
+  window.storybook = { Hooks };
+})();

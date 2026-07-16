@@ -3,6 +3,7 @@ defmodule LightningWeb.WorkflowLive.Edit do
   use LightningWeb, {:live_view, container: {:div, []}}
 
   import LightningWeb.Components.NewInputs
+  import LightningWeb.Components.UI.Button
   import LightningWeb.Components.Icons
   import LightningWeb.WorkflowLive.Components
   import React

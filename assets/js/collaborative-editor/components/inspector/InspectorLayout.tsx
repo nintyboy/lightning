@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Button } from '../Button';
+import { Button } from '@openfn/ui';
 
 // import _logger from "#/utils/logger";
 
@@ -66,7 +66,11 @@ export function InspectorLayout({
               <h2 className="text-base font-semibold text-gray-900">{title}</h2>
             </div>
             <div className="ml-3 flex h-7 items-center">
-              <Button variant="nakedClose" onClick={onClose} />
+              <Button
+                variant="nakedClose"
+                aria-label="Close panel"
+                onClick={onClose}
+              />
             </div>
           </div>
           {nodeType && (

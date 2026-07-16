@@ -52,6 +52,7 @@ adaptor_registry_cache.json
 npm-debug.log
 /assets/node_modules/
 /assets/**/*.tsbuildinfo
+/assets/packages/*/node_modules/
 /examples/**/node_modules/
 
 # coveralls output file
@@ -93,3 +94,4 @@ assets/test-results
 .claude/settings.local.json
 test-results
 assets/coverage
+.gstack/

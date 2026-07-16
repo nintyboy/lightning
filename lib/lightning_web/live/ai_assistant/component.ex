@@ -798,10 +798,12 @@ defmodule LightningWeb.AiAssistant.Component do
               </.async_result>
             </div>
 
-            <button
+            <.button
+              theme="ghost"
+              size="sm"
               phx-click="toggle_sort"
               phx-target={@target}
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              class="inline-flex items-center gap-1.5 transition-colors duration-200"
               aria-label={
                 if @sort_direction == :desc,
                   do: "Currently showing latest first. Click to sort oldest first.",
@@ -816,7 +818,7 @@ defmodule LightningWeb.AiAssistant.Component do
               <% else %>
                 <.icon name="hero-chevron-up" class="size-4" />
               <% end %>
-            </button>
+            </.button>
           </div>
 
           <div class="space-y-3" role="list" aria-label="Chat sessions">
@@ -1374,15 +1376,17 @@ defmodule LightningWeb.AiAssistant.Component do
                 </span>
               </div>
 
-              <button
+              <.button
                 id={"copy-message-#{@message.id}-content-btn"}
                 type="button"
-                class="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded hover:bg-gray-50 transition-colors"
+                theme="ghost"
+                size="sm"
+                class="text-xs transition-colors"
                 phx-hook="Copy"
                 data-content={@message.content}
               >
                 Copy
-              </button>
+              </.button>
             </div>
           </div>
 

@@ -191,9 +191,14 @@
         </.link>
       </span>
       <div class="inline-block">
-        <.submit_button phx-disable-with="Saving" disabled={!@changeset.valid?}>
+        <.button
+          type="submit"
+          theme="primary"
+          phx-disable-with="Saving"
+          disabled={!@changeset.valid?}
+        >
           Save
-        </.submit_button>
+        </.button>
       </div>
     </div>
   </.form>

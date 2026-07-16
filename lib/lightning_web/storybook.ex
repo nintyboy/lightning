@@ -5,11 +5,12 @@ defmodule LightningWeb.Storybook do
 
   do_in(:dev) do
     use PhoenixStorybook,
-      otp_app: :lightning_web,
+      otp_app: :lightning,
       content_path: Path.expand("../../storybook", __DIR__),
       # assets path are remote path, not local file-system paths
       css_path: "/assets/storybook.css",
-      js_path: "/assets/storybook.js",
+      js_path: "/assets/js/storybook.js",
+      js_script_type: "module",
       sandbox_class: "lightning-web"
   end
 end

@@ -1,6 +1,6 @@
 import { useCanRun } from '../hooks/useWorkflow';
 
-import { Button } from './Button';
+import { Button } from '@openfn/ui';
 import { ShortcutKeys } from './ShortcutKeys';
 import { Tooltip } from './Tooltip';
 
