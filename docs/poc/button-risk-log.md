@@ -483,3 +483,35 @@ regression test — a future refactor could still silently reintroduce the
 accepted, since fully behavioral testing of client-JS interactions is outside
 ExUnit's reach without introducing Wallaby/Playwright, which is out of scope for
 this POC.
+
+### Switch 11 — SplitButton's chevron icon wasn't rendering in phoenix_storybook (found by the reviewer, live)
+
+Reviewer navigated to `/storybook/common/split_button` in the connected browser
+and spotted the trigger segment's chevron-down icon missing.
+
+**Root cause**: `assets/css/storybook.css` never included
+`@config '../tailwind.config.ts'` — the directive that registers the heroicons
+Tailwind plugin (turns `hero-*` classes into real CSS, a mask-image data URI per
+icon). Without it, `hero-chevron-down` existed in the rendered HTML with zero
+matching CSS — invisible, not erroring. Confirmed via build output:
+`grep -c hero-chevron-down` was 4 in `priv/static/assets/app.css` and 0 in
+`priv/static/assets/storybook.css` before the fix. This had been latent since
+Switch 9 (the font fix) — the Button story never exercises an icon variant, so
+nothing surfaced it until SplitButton's chevron.
+
+**Fix**: added `@config '../tailwind.config.ts'` to `storybook.css`. Safe here
+specifically because this stylesheet builds via the native Tailwind CLI
+(`mix tailwind storybook`), the same mechanism as the working `app.css` — the
+`__dirname is not defined` failure from Switch 9 was a Vite/ESM-only problem,
+and only applies to the _React_ Storybook's
+`assets/packages/ui/.storybook/preview.css`, which deliberately omits this line
+for that reason (now documented in a comment on both files so nobody "fixes" one
+by copying the other's config).
+
+**Verified**: `mix tailwind storybook` rebuild, `hero-chevron-down` now 4 rules
+(parity with app.css); reloaded in the live browser via the browse skill —
+chevron renders on all 7 variants (primary, 5 themes, disabled), zero console
+errors.
+
+**Residual risk: none** — purely additive CSS registration, verified visually
+end-to-end.
