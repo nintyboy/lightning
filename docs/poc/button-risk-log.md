@@ -174,3 +174,12 @@ real programme.
 
 **Residual risk: Low.** Submit flow covered by ProjectLiveTest (130 green). The
 visual delta on one Save button ships intentionally.
+
+### Switch 3 — `button_loader` deleted (entry #8)
+
+**Pre-switch risk**: **Low** — zero references anywhere in
+lib/test/storybook/assets (census + re-verified pre-delete). Dead code removal
+only. **Decision**: do NOT add a `loading` state to the canonical button in its
+place — zero production demand; Figma's loading state is a Phase 0 gate. YAGNI.
+**Verification**: reference grep 0 hits; `mix compile --warnings-as-errors`
+clean. **Residual risk: none identified.**
