@@ -138,3 +138,39 @@ server run); class-set equivalence is strong but not pixel proof. React
 secondary hover is an intentional visible change in the collab editor (log to
 designer). Accepted for POC; Chromatic-style baseline would close this in the
 real programme.
+
+### Switch 2 — `submit_button` deleted, call site migrated (entry #2)
+
+**Pre-switch risk assessment**
+
+- Business risk: **Low.** One real call site (census's "3" was open tag + close
+  tag + @spec). It is the SAVE button on the project settings form — submission
+  semantics matter (`type="submit"`, `phx-disable-with="Saving"`,
+  changeset-driven `disabled`), but `<.button>` passes all three through (`type`
+  attr; `phx-*` via `:global`; `disabled` in the include list). Trivially
+  reversible.
+- Technical risk: **Low.** No JS hooks, no dynamic classes. Deliberate visual
+  delta (consolidation, not regression): hover `primary-700`→`primary-500`,
+  `font-medium`→`font-semibold`, `px-4`→`px-3`, `focus:ring`→
+  `focus-visible:outline`. This is the point of one canonical primary; logged
+  for the designer.
+- Rating: **Low.**
+
+**What was done**
+
+- `project_live/form_component.html.heex`: `<.submit_button …>` →
+  `<.button type="submit" theme="primary" …>` (same bindings).
+- `live/components/form.ex`: `submit_button/1` deleted (spec + attrs + def).
+- `project_live/form_component.ex`: now-unused
+  `import LightningWeb.Components.Form` removed (warnings-as-errors caught it).
+
+**Verification**
+
+- `mix compile --warnings-as-errors` clean.
+- `mix test test/lightning_web/live/project_live_test.exs`: 130 tests, 0
+  failures.
+- `mix test test/lightning_web/live/project_live`: 6 tests, 0 failures.
+- Grep gate: `grep -rn 'submit_button' lib` → 0 hits.
+
+**Residual risk: Low.** Submit flow covered by ProjectLiveTest (130 green). The
+visual delta on one Save button ships intentionally.

@@ -2,44 +2,6 @@ defmodule LightningWeb.Components.Form do
   @moduledoc false
   use LightningWeb, :component
 
-  slot :inner_block, required: true
-  attr :changeset, :map
-  attr :rest, :global, include: ~w(form disabled)
-
-  @spec submit_button(Phoenix.LiveView.Socket.assigns()) :: any()
-  def submit_button(assigns) do
-    base_classes = ~w[
-      inline-flex
-      justify-center
-      py-2
-      px-4
-      border
-      border-transparent
-      shadow-xs
-      text-sm
-      font-medium
-      rounded-md
-      text-white
-      focus:outline-none
-      focus:ring-2
-      focus:ring-offset-2
-      focus:ring-primary-500
-      enabled:bg-primary-600
-      enabled:hover:bg-primary-700
-      disabled:bg-primary-300
-    ]
-
-    assigns =
-      assigns
-      |> assign_new(:class, fn -> base_classes end)
-
-    ~H"""
-    <button type="submit" class={@class} {@rest}>
-      {render_slot(@inner_block)}
-    </button>
-    """
-  end
-
   attr :form, :any, required: true
   attr :field, :atom, required: true
   attr :label, :string, required: false
