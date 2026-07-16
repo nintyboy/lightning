@@ -108,10 +108,12 @@
           </div>
           <div class="flex justify-center items-center gap-4 px-4 py-5 sm:px-6 border-t border-gray-300">
             <div>
-              <button
+              <.button
                 type="button"
+                theme="secondary"
+                size="lg"
                 onclick={"window.open('#{~p"/profile/auth/backup_codes/print"}',  '_blank')"}
-                class="inline-flex items-center gap-x-2 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                class="inline-flex items-center gap-x-2 sm:mt-0 sm:w-auto"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +130,7 @@
                   />
                 </svg>
                 Print Codes
-              </button>
+              </.button>
             </div>
             <div class="flex justify-center items-center gap-x-2">
               <.button
@@ -195,13 +197,15 @@
               When you generate new backup codes, you must copy or print the new codes. Your old codes won't work anymore.
             </p>
             <div class="mt-2">
-              <button
+              <.button
                 type="button"
+                theme="secondary"
+                size="lg"
                 phx-click="regenerate-backup-codes"
-                class="inline-flex items-center gap-x-2 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto rounded-b-md"
+                class="inline-flex items-center gap-x-2 sm:mt-0 sm:w-auto rounded-b-md"
               >
                 Generate new backup codes
-              </button>
+              </.button>
             </div>
           </div>
         </div>
