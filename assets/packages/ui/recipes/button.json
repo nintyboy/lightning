@@ -10,7 +10,7 @@
     "disabled strings deliberately contain no hover: classes (see .claude/guidelines/ui-patterns.md disabled rule).",
     "Cursor behavior is stack-specific and intentionally NOT in this file: HEEx adds disabled:cursor-auto, React adds disabled:cursor-not-allowed (pre-existing divergence, logged in docs/poc/button-risk-log.md)."
   ],
-  "base": "rounded-md text-sm phx-submit-loading:opacity-75",
+  "base": "rounded-md text-sm phx-submit-loading:opacity-75 justify-center flex flex-row",
   "sizes": {
     "sm": "px-2.5 py-1.5",
     "md": "px-3 py-2",
@@ -39,8 +39,8 @@
       "disabled": "font-semibold shadow-xs bg-yellow-300 text-white"
     },
     "ghost": {
-      "enabled": "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400",
-      "disabled": "bg-transparent text-gray-300"
+      "enabled": "font-semibold bg-transparent text-gray-900 hover:text-gray-900 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400",
+      "disabled": "font-semibold bg-transparent text-gray-400"
     },
     "custom": {
       "enabled": "",

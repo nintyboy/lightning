@@ -80,7 +80,7 @@ export function SplitButton({
               size,
               vstate: disabled ? 'disabled' : 'enabled',
             }),
-            'rounded-l-none -ml-px px-1.5 focus-visible:z-10'
+            'rounded-l-none -ml-px px-1.5 focus-visible:z-10 items-center'
           )}
         >
           <svg
@@ -98,7 +98,7 @@ export function SplitButton({
         </AriaButton>
         <Popover
           placement="bottom end"
-          className="min-w-[10rem] rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 entering:animate-in exiting:animate-out"
+          className="min-w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 entering:animate-in exiting:animate-out"
         >
           <Menu className="outline-none text-sm text-gray-700">
             {items.map(item => (
@@ -107,7 +107,7 @@ export function SplitButton({
                 id={item.id}
                 isDisabled={item.isDisabled ?? false}
                 {...(item.onAction ? { onAction: item.onAction } : {})}
-                className="cursor-pointer px-4 py-2 outline-none data-[focused]:bg-gray-100 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+                className="cursor-pointer px-4 py-2 outline-none data-focused:bg-gray-100 data-disabled:cursor-not-allowed data-disabled:opacity-50"
               >
                 {item.label}
               </MenuItem>

@@ -161,7 +161,7 @@ export function Button({
           {iconLeft ? (
             <span
               className={cx(
-                'inline-flex align-middle',
+                'flex items-center',
                 children != null && 'mr-1.5 -ml-0.5'
               )}
               aria-hidden="true"
@@ -173,7 +173,7 @@ export function Button({
           {iconRight ? (
             <span
               className={cx(
-                'inline-flex align-middle',
+                'flex items-center',
                 children != null && 'ml-1.5 -mr-0.5'
               )}
               aria-hidden="true"
