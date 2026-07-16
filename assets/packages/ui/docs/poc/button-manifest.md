@@ -10,10 +10,10 @@ Branch `feature/button-poc` off `main@32f10014`. Companion doc:
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `assets/packages/ui/recipes/button.json`    | Shared class recipe (base, 4 sizes, 7 variants incl. new `ghost`) — single styling source for both stacks                                                               |
 | `lib/lightning_web/components/ui/button.ex` | Canonical HEEx button (`button/1`, `button_link/1`, `simple_button_with_tooltip/1`), reads recipe at compile time with `@external_resource` + recipe⇄attr compile guard |
-| `docs/poc/button-risk-log.md`               | Running risk log (source of truth for this POC)                                                                                                                         |
-| `docs/poc/rendered-classes-after.txt`       | Rendered class-string evidence (canonical output)                                                                                                                       |
-| `docs/poc/button-consolidation.html`        | Companion document                                                                                                                                                      |
-| `docs/poc/button-manifest.md`               | This file                                                                                                                                                               |
+| `assets/packages/ui/docs/poc/button-risk-log.md`               | Running risk log (source of truth for this POC)                                                                                                                         |
+| `assets/packages/ui/docs/poc/rendered-classes-after.txt`       | Rendered class-string evidence (canonical output)                                                                                                                       |
+| `assets/packages/ui/docs/poc/button-consolidation.html`        | Companion document                                                                                                                                                      |
+| `assets/packages/ui/docs/poc/button-manifest.md`               | This file                                                                                                                                                               |
 
 ## 2. Moved / consolidated
 

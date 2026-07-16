@@ -8,7 +8,7 @@
     "Encodes CURRENT production styling (indigo primary, rounded-md). Do not restyle here without a design decision.",
     "Variant strings carry their own font/shadow so non-solid variants (ghost) can differ without class-order conflicts.",
     "disabled strings deliberately contain no hover: classes (see .claude/guidelines/ui-patterns.md disabled rule).",
-    "Cursor behavior is stack-specific and intentionally NOT in this file: HEEx adds disabled:cursor-auto, React adds disabled:cursor-not-allowed (pre-existing divergence, logged in docs/poc/button-risk-log.md)."
+    "Cursor behavior is stack-specific and intentionally NOT in this file: HEEx adds disabled:cursor-auto, React adds disabled:cursor-not-allowed (pre-existing divergence, logged in ../docs/poc/button-risk-log.md)."
   ],
   "base": "rounded-md text-sm phx-submit-loading:opacity-75 justify-center flex flex-row",
   "sizes": {

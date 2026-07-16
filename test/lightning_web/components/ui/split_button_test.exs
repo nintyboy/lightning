@@ -60,7 +60,7 @@ defmodule LightningWeb.Components.UI.SplitButtonTest do
       # The JS commands are client-side (Phoenix.LiveView.JS), so we assert
       # on the encoded push commands rather than post-click DOM state.
       # Verified against real open/Escape/click-away behavior in a browser —
-      # see docs/poc/button-risk-log.md.
+      # see assets/packages/ui/docs/poc/button-risk-log.md.
       assert html =~ "show"
       assert html =~ "aria-expanded"
       assert html =~ "focus_first"

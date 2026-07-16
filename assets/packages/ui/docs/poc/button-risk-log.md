@@ -85,7 +85,7 @@ utility, CopyButton.
   mismatch — added a compile-time guard that raises if recipe keys ≠ attr
   values; (c) class ORDER changes (font/shadow moved from base into variant
   strings so ghost can differ) — class order is irrelevant to CSS; sets verified
-  identical by rendering (docs/poc/rendered-classes-after.txt); (d) React JSON
+  identical by rendering (assets/packages/ui/docs/poc/rendered-classes-after.txt); (d) React JSON
   import — `resolveJsonModule` already on; esbuild bundles JSON natively.
 - Rating: **Medium** — wide blast radius but mechanical move with compile-time +
   render-level verification.
@@ -124,7 +124,7 @@ utility, CopyButton.
 
 - `mix compile --warnings-as-errors` clean.
 - Rendered class strings for primary/secondary/danger/ghost/disabled captured
-  (docs/poc/rendered-classes-after.txt) — identical sets to the previous
+  (assets/packages/ui/docs/poc/rendered-classes-after.txt) — identical sets to the previous
   implementation.
 - `npx tsc --noEmit -p tsconfig.browser.json`: only pre-existing failures in
   untouched `adaptor-docs/*` (verified untouched vs main). Button.tsx clean.
@@ -381,7 +381,7 @@ Inter). Root cause chain, worked through empirically with the browse skill
 errors; `getComputedStyle` on the actual rendered `<button>` and the
 code/`<pre>` panel both resolve to `"Inter var", ui-sans-serif, ...` and
 `"Fira Code VF", ui-monospace, ...` respectively; screenshot shows visibly
-correct Inter letterforms (compare `docs/poc/` screenshots before/after).
+correct Inter letterforms (compare `assets/packages/ui/docs/poc/` screenshots before/after).
 
 **Judgment call**: `!important` against a vendored dependency's CSS is generally
 something to avoid, but phoenix_storybook exposes no head-injection hook or
