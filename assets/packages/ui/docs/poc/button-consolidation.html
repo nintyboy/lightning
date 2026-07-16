@@ -39,11 +39,14 @@ source of truth: <code>assets/packages/ui/docs/poc/button-risk-log.md</code> · 
 
 <div class="card">
 <strong>TL;DR.</strong> One canonical Button now exists per stack — <code>lib/lightning_web/components/ui/button.ex</code> (HEEx)
-and <code>assets/js/collaborative-editor/components/Button.tsx</code> (React) — both styled from one shared recipe,
+and <code>@openfn/ui</code>'s <code>Button.tsx</code> (React) — both styled from one shared recipe,
 <code>assets/packages/ui/recipes/button.json</code>. 175 existing component call sites carried over unchanged;
 2 duplicate implementations deleted; 6 raw one-offs migrated; the remaining 61 raw buttons were <em>classified,
 not force-migrated</em> — 90% of them turn out to be the anatomy of other components (27 are one identical modal-close X).
-Full test suite green (only a pre-existing worker-integration failure that also fails on <code>main</code>).
+Both stacks now also carry icon-only buttons and a <code>SplitButton</code> (HEEx twin built from the app's own
+<code>Phoenix.LiveView.JS</code>/<code>phx-click-away</code> conventions), with matching a11y/i18n guarantees.
+Four real bugs were found and fixed by actually loading components in a browser, not by trusting class-string
+tests — see §6c. Full test suite green (only pre-existing flakiness that also fails on <code>main</code>).
 </div>
 
 <h2>1. Who this serves</h2>
@@ -214,6 +217,23 @@ Batch B after:  &lt;.button theme="ghost" size="sm"&gt; — deltas: px-3→px-2.
 <p><strong>Confidence: 4/5</strong> — tsc parity with main (467/467 diffed), 50/50 vitest, 7/7 ExUnit, esbuild/tailwind/storybook builds green; in-browser pixel check still outstanding (same as Switch 1).</p>
 </div>
 
+<h2>6c. HEEx feature parity + live-verification bug round (Switches 8–12)</h2>
+<div class="card">
+<p>Reviewer asked for HEEx to match React on icons, split buttons, a11y, and i18n, then verified everything by actually
+opening it in a connected browser rather than reading test output. That single habit surfaced 4 real bugs that every
+prior class-string/compile check had missed.</p>
+<table>
+<tr><th>Switch</th><th>What was found</th><th>Fix</th></tr>
+<tr><td>10 — feature parity</td><td><code>:inner_block</code> was <code>required: true</code>, making icon-only buttons impossible; no HEEx <code>SplitButton</code> existed at all</td><td><code>:inner_block</code> relaxed to optional + runtime <code>aria-label</code> guard (render-time equivalent of React's <code>ButtonIconOnly</code> type); new <code>ui/split_button.ex</code> built on <code>Phoenix.LiveView.JS</code> + the app's existing <code>phx-click-away</code>/<code>role="menu"</code> conventions</td></tr>
+<tr><td>10 — escape-to-close bug</td><td>Two attempts before the working one: <code>phx-window-keydown</code> fired globally, letting one split-button instance steal focus from another; plain <code>phx-keydown</code> on the wrapper <code>&lt;div&gt;</code> silently never fired (LiveView's non-window binding matches <code>event.target</code> directly, no ancestor lookup)</td><td>Binding moved onto each menu-item <code>&lt;button&gt;</code> — the element focus actually lands on. Verified with two split-buttons open independently in a live browser; locked down with a structural regression test</td></tr>
+<tr><td>8 — storybook 500</td><td><code>phoenix_storybook</code> was broken on <code>main</code> (<code>otp_app: :lightning_web</code> should have been <code>:lightning</code>)</td><td>Fixed in <code>lib/lightning_web/storybook.ex</code></td></tr>
+<tr><td>9 — fonts</td><td>phoenix_storybook doesn't use the app's root layout, so Inter/Fira Code never loaded; a first attempt using local-file <code>@import</code> inlined unhashed, unresolvable paths</td><td>Runtime <code>@import url(...)</code> against the pre-built hashed font CSS, plus explicit <code>!important</code> overrides for phoenix_storybook's own higher-specificity font rule</td></tr>
+<tr><td>11 — invisible chevron</td><td><code>assets/css/storybook.css</code> never registered the heroicons Tailwind plugin (missing <code>@config</code>) — <code>hero-chevron-down</code> existed in the HTML with zero matching CSS, so it just didn't render (no error)</td><td>Added <code>@config '../tailwind.config.ts'</code> — safe here specifically because this stylesheet builds via the native Tailwind CLI, unlike the React Storybook's Vite-built stylesheet where the same line breaks under ESM</td></tr>
+<tr><td>12 — icon 2px off-center</td><td>Reviewer compared the (now-visible) HEEx chevron against React's side by side and it sat visibly higher. Measured with <code>getBoundingClientRect()</code>: React offset <code>0</code>, HEEx offset <code>-2px</code>. Cause: <code>inline-block align-middle</code> is a no-op on flex items; with no <code>align-items</code> set, a flex item with an explicit size (the icon) sits at flex-start, not centered</td><td><code>self-center</code> on the icon spans — same visual result as React's per-icon <code>flex items-center</code> wrapper, without adding a DOM node</td></tr>
+</table>
+<p><strong>Why this matters more than any individual bug:</strong> every one of these was invisible to <code>mix compile --warnings-as-errors</code>, ExUnit, and Vitest — they only exist as pixels. This is the exact risk §6.1 already flagged ("no pixel-level verification anywhere") turning up in practice, twice, within one review pass. See §7 for the plan implication.</p>
+</div>
+
 <h2>7. Verdict — what this proves and disproves about the plan</h2>
 <div class="card">
 <p><strong>Proved:</strong></p>
@@ -234,9 +254,11 @@ Batch B after:  &lt;.button theme="ghost" size="sm"&gt; — deltas: px-3→px-2.
       MIGRATE rows should be re-tagged with owners before batching.</li>
   <li><strong>Inventory rows must be verify-by-grep'd at execution time</strong> — two of nine button rows were wrong
       (cancel_button misclassified, button_loader dead). Cheap to check, expensive to trust.</li>
-  <li><strong>Visual verification must come before broad migration, not after.</strong> The lowest-confidence switches
-      were exactly the ones with intentional deltas. Phase 2 (Storybook + visual regression) genuinely is a prerequisite,
-      as the plan already claims — this POC ran without it and the confidence ceiling shows.</li>
+  <li><strong>Visual verification must come before broad migration, not after — this is no longer theoretical.</strong>
+      §6c is direct evidence: a broken storybook, missing fonts, an entirely invisible icon, and a 2px-off-center icon
+      all compiled cleanly, passed every ExUnit/Vitest assertion, and were caught only because a reviewer opened a real
+      browser and looked. Phase 2 (Storybook + visual regression) isn't a nice-to-have prerequisite, it's the only
+      mechanism that would have caught any of these four bugs automatically.</li>
 </ul>
 <p><strong>New design gates surfaced for Phase 0:</strong> success/warning themes' future, ghost weight/colors vs Figma
 Ghost, disabled-cursor policy, the close-affordance treatment (nakedClose ⇄ 27 HEEx close X's).</p>

@@ -6,14 +6,14 @@ Branch `feature/button-poc` off `main@32f10014`. Companion doc:
 
 ## 1. Created
 
-| Path                                        | What                                                                                                                                                                    |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `assets/packages/ui/recipes/button.json`    | Shared class recipe (base, 4 sizes, 7 variants incl. new `ghost`) — single styling source for both stacks                                                               |
-| `lib/lightning_web/components/ui/button.ex` | Canonical HEEx button (`button/1`, `button_link/1`, `simple_button_with_tooltip/1`), reads recipe at compile time with `@external_resource` + recipe⇄attr compile guard |
-| `assets/packages/ui/docs/poc/button-risk-log.md`               | Running risk log (source of truth for this POC)                                                                                                                         |
-| `assets/packages/ui/docs/poc/rendered-classes-after.txt`       | Rendered class-string evidence (canonical output)                                                                                                                       |
-| `assets/packages/ui/docs/poc/button-consolidation.html`        | Companion document                                                                                                                                                      |
-| `assets/packages/ui/docs/poc/button-manifest.md`               | This file                                                                                                                                                               |
+| Path                                                     | What                                                                                                                                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `assets/packages/ui/recipes/button.json`                 | Shared class recipe (base, 4 sizes, 7 variants incl. new `ghost`) — single styling source for both stacks                                                               |
+| `lib/lightning_web/components/ui/button.ex`              | Canonical HEEx button (`button/1`, `button_link/1`, `simple_button_with_tooltip/1`), reads recipe at compile time with `@external_resource` + recipe⇄attr compile guard |
+| `assets/packages/ui/docs/poc/button-risk-log.md`         | Running risk log (source of truth for this POC)                                                                                                                         |
+| `assets/packages/ui/docs/poc/rendered-classes-after.txt` | Rendered class-string evidence (canonical output)                                                                                                                       |
+| `assets/packages/ui/docs/poc/button-consolidation.html`  | Companion document                                                                                                                                                      |
+| `assets/packages/ui/docs/poc/button-manifest.md`         | This file                                                                                                                                                               |
 
 ## 2. Moved / consolidated
 
@@ -64,6 +64,19 @@ Branch `feature/button-poc` off `main@32f10014`. Companion doc:
 | `test/lightning_web/components/ui/button_test.exs`       | +7 tests: icon-only render/raise/tooltip-insufficient, icon margin conditional                                                                                      |
 | `test/lightning_web/components/ui/split_button_test.exs` | NEW — 8 tests incl. a structural regression guard for the escape-binding fix                                                                                        |
 | `storybook/common/split_button.story.exs`                | NEW — primary/themes/disabled variations                                                                                                                            |
+
+## 3d. Bug fixes found during live-browser review (Switches 8, 9, 11, 12)
+
+Not POC-scope changes, but real bugs surfaced by actually loading the components
+in a browser rather than trusting class-string tests — logged here because they
+touch files this POC also modified.
+
+| Path                                        | What                                                                                                                                                                               | Switch |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `lib/lightning_web/storybook.ex`            | `otp_app: :lightning_web` → `:lightning`; `js_path`/`js_script_type` corrected — phoenix_storybook 500'd on `main`                                                                 | 8      |
+| `assets/css/storybook.css`                  | Runtime `@import url(...)` for Inter/Fira Code fonts (esbuild-hashed paths) + `!important` overrides for phoenix_storybook's higher-specificity font rules                         | 9      |
+| `assets/css/storybook.css`                  | Added `@config '../tailwind.config.ts'` — heroicons plugin was never registered for this stylesheet, so `hero-*` classes rendered with zero matching CSS (invisible, not erroring) | 11     |
+| `lib/lightning_web/components/ui/button.ex` | Icon spans: `inline-block align-middle` → `self-center` — `vertical-align` is a no-op on flex items, so icon-only buttons rendered 2px off vertical-center vs React                | 12     |
 
 ## 4. Deferred / skipped (with owners)
 
