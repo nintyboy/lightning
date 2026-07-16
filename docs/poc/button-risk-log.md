@@ -183,3 +183,55 @@ only. **Decision**: do NOT add a `loading` state to the canonical button in its
 place — zero production demand; Figma's loading state is a Phase 0 gate. YAGNI.
 **Verification**: reference grep 0 hits; `mix compile --warnings-as-errors`
 clean. **Residual risk: none identified.**
+
+### Switch 4 — Batch A: 3 secondary-lookalike raw buttons (subset of entry #5)
+
+**Sites**: `backup_codes_live/index.html.heex` (Print Codes; Generate new backup
+codes), `components/user_deletion_modal.ex` (Cancel). **Pre-switch risk: Low** —
+the hand-rolled classes were byte-for-byte the canonical secondary/lg set
+(`px-3.5 py-2.5 font-semibold shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50`);
+layout extras kept as class overrides; `onclick`/`phx-click` pass through
+`:global`. **Verification**: compile clean; backup_codes (16) + profile (49) +
+ai_assistant (25) + user_live (25) LiveView tests green; class-set equivalence
+by inspection (exact-string match). **Residual: none identified** —
+byte-equivalent.
+
+### Switch 5 — Batch B: 2 ai-assistant ghost buttons (subset of entries #5/#6)
+
+**Sites**: `ai_assistant/component.ex` sort-toggle and message-copy.
+**Pre-switch risk: Low-Medium** — deliberate consolidation deltas: sort
+px-3→px-2.5 (size sm), focus:ring-2-indigo → focus-visible:outline-gray-400;
+copy base color text-gray-400 → ghost text-gray-600. Both retain
+phx-click/phx-hook/aria-label through `:global`. **Verification**: compile
+clean; ai_assistant LiveView tests 25/25. **Residual: Low** — small visible
+deltas ship intentionally (unification); flagged to designer.
+
+### Switch 6 — Disposition of the remaining 61 raw `<button>`s: DEFER by owning component
+
+The census's biggest finding: most raw buttons are not Button one-offs — they
+are the anatomy of OTHER components. Migrating them into `<.button>` would bloat
+the Button API (padding-less sizes, close variants, switch styling) without
+consolidating anything real. Each category is deferred to its owning component's
+consolidation, per the master inventory sheet:
+
+| Category                                           | Count  | Evidence / examples                                                                                                   | Owner (deferred to)                                                                                 |
+| -------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Modal close X (identical class string)             | **27** | `grep -rn 'rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none' lib/lightning_web/live \| wc -l` | `ui/modal.ex` — add a close-button slot; kills all 27 at once (React twin: Button.tsx `nakedClose`) |
+| `table-action` / `icon-button` utility buttons     | 9      | collection_live/components.ex:112,121; run_live/index.html.heex:631; workorder_component.ex:249 …                     | table-action utility (explicitly out of POC scope)                                                  |
+| Link-styled buttons                                | ~6     | ai_assistant:770,871; credential_form:989,936; oauth.ex:321; credential_picker:68 (already uses `.link` utility)      | Link/typography pattern                                                                             |
+| Input-attached show/copy (rounded-r-lg, w-[100px]) | 3      | webhook_auth_method_form_component.ex:530,575; workflow_live/components.ex:392                                        | Field addon / secret-reveal pattern                                                                 |
+| Alert/flash dismiss (colored)                      | 3      | github_sync_modal.ex:104; common.ex:507,552                                                                           | `ui/alert.ex`                                                                                       |
+| MFA toggle switches (role="switch")                | 2      | profile mfa_component.html.heex:15; project settings.html.heex:621                                                    | `ui/field.ex` toggle                                                                                |
+| Credential environment tab bar                     | 2      | credential_form_component.ex:826,854                                                                                  | Tabs organism (inline-editable tabs, already in inventory)                                          |
+| Radio-card selectors                               | 2      | credential_form_component.ex:1080; new_workflow_component.ex:436                                                      | RadioCardGroup                                                                                      |
+| Circular icon retry/cancel (rounded-full bordered) | 2      | ai_assistant:1223,1235                                                                                                | icon-button follow-up; distinctive pattern — flag designer                                          |
+| Banner internals                                   | 2      | book_demo_banner.ex:117,139                                                                                           | Banner / extension surface                                                                          |
+| Sandbox parameterized action button                | 1      | sandbox_live/components.ex:617 (takes @button_class)                                                                  | sandbox action-cluster organism                                                                     |
+| Legacy editor (FROZEN)                             | 2      | workflow_live/edit.ex:1074; workflow_live/components.ex:108 (legacy-upgrade nag)                                      | dies with legacy sunset                                                                             |
+| Tokens copy pill                                   | 1      | tokens_live/index.html.heex:48                                                                                        | CopyButton (out of POC scope)                                                                       |
+| Dev harness                                        | 1      | dev/react_live.ex                                                                                                     | dev-only                                                                                            |
+
+**Consequence for the full plan**: the Phase 5 "67 raw buttons" line item is
+~90% NOT Button work. The one-off cleanup phases should be re-cut per OWNING
+component, and the modal-close slot alone (one Modal change) retires 27
+one-offs.
