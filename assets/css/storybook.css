@@ -1,6 +1,22 @@
 /* Storybook (phoenix_storybook) stylesheet.
- * Mirrors the app's color aliases so recipe classes (bg-primary-*) resolve,
- * and scans the canonical HEEx components + recipes + stories for classes. */
+ * Mirrors the app's color + font tokens so recipe classes (bg-primary-*,
+ * font-sans) resolve, and scans the canonical HEEx components + recipes +
+ * stories for classes.
+ *
+ * root.html.heex (the app's real layout) links ../fonts/inter.css and
+ * fira-code.css directly — phoenix_storybook uses its own layout templates
+ * (deps/phoenix_storybook), which never include those <link> tags, so the
+ * @font-face rules are imported here instead. */
+/* Runtime CSS @import (NOT a local-file import) — the font files themselves
+ * are copied/hashed by esbuild's asset pipeline into priv/static/assets/,
+ * and only the already-built /assets/fonts/{inter,fira-code}.css correctly
+ * references those hashed filenames. Importing the *source* files here
+ * instead would inline unhashed, unresolvable url() paths.
+ * MUST stay before `@import 'tailwindcss'` — @import rules must be the
+ * first rules in the stylesheet per the CSS spec; Tailwind passes runtime
+ * url() imports through untouched but does not reorder them. */
+@import url('/assets/fonts/inter.css');
+@import url('/assets/fonts/fira-code.css');
 @import 'tailwindcss';
 
 @source '../../lib/lightning_web/components/ui';
@@ -8,6 +24,13 @@
 @source '../packages/ui/recipes/*.json';
 
 @theme {
+  --font-sans:
+    'Inter var', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    'Fira Code VF', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+
   --color-primary-50: var(--color-indigo-50);
   --color-primary-100: var(--color-indigo-100);
   --color-primary-200: var(--color-indigo-200);
@@ -32,6 +55,17 @@
   --color-secondary-950: var(--color-gray-950);
 }
 
-.lsb-sandbox {
-  font-family: inherit !important;
+/* phoenix_storybook's own bundled phoenix_storybook.css sets font-family on
+ * `.psb html.psb` / `.psb body.psb` with higher specificity than Preflight's
+ * plain `html, :host` rule, so our --font-sans/--font-mono never win the
+ * cascade without an explicit, equally-targeted override. */
+html.psb,
+.psb html.psb,
+body.psb,
+.psb body.psb {
+  font-family: var(--font-sans) !important;
+}
+
+.psb-sandbox {
+  font-family: var(--font-sans) !important;
 }

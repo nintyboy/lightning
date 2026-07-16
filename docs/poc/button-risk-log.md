@@ -342,3 +342,54 @@ Three stacked bugs, all in configuration:
 
 Verified in-browser: /storybook/common/button renders all 6 themes correctly, no
 console errors. Risk: Low (dev-only surface).
+
+### Switch 9 — phoenix_storybook wasn't loading Inter/Fira Code fonts (found during review)
+
+Reviewer flagged: buttons rendered but with the wrong typeface (system sans, not
+Inter). Root cause chain, worked through empirically with the browse skill
+(screenshots + `getComputedStyle` at each ancestor):
+
+1. `storybook.css`'s `@theme` block set `--font-sans`/`--font-mono` but the
+   actual `@font-face` rules for 'Inter var'/'Fira Code VF' live in
+   `assets/fonts/inter.css`/`fira-code.css`, linked directly in the real app's
+   `root.html.heex` — a layout phoenix_storybook never uses.
+2. First fix attempt (`@import '../fonts/inter.css';`, a Tailwind _local-file_
+   import) was wrong: Tailwind inlines the file's raw `url('Inter-Thin.woff2')`
+   paths, but esbuild's asset pipeline copies+hashes those files elsewhere
+   (`Inter-roman.var-WIJJYAE4.woff2` etc.) — the inlined urls 404'd. Fixed by
+   using a **runtime** `@import url('/assets/fonts/inter.css')` against the
+   already-built, correctly-hashed file instead (same file `root.html.heex`
+   links to) — and moving it before `@import 'tailwindcss'`, since `@import`
+   must be the first rule(s) in a stylesheet per the CSS spec; Tailwind doesn't
+   reorder a runtime url() import that follows it.
+3. Even with fonts loading (verified via `network` — 200s on the actual woff2
+   files), the button still rendered in the wrong font. Traced the ancestor
+   chain with `getComputedStyle` at every level (html → body → sandbox div →
+   button) and found phoenix_storybook's own bundled `phoenix_storybook.css`
+   (deps/phoenix_storybook/priv/static/css/) declares
+   `.psb html.psb { font-family: ui-sans-serif, ... }` (compound-class selector,
+   higher specificity than Preflight's plain `html, :host`) AND
+   `.psb-sandbox { font-family: serif, ... }` directly — a third-party
+   dependency's CSS we don't control silently winning the cascade. Fixed with
+   explicit, equally-targeted `!important` overrides on
+   `html.psb`/`.psb html.psb`/`body.psb`/`.psb body.psb` and `.psb-sandbox`
+   (using the concrete `var(--font-sans)` value, not `inherit` — an `inherit`
+   attempt on `.psb-sandbox` still resolved to an intermediate wrapper div that
+   phoenix_storybook itself re-declares with its own default stack).
+
+**Verified in-browser** (browse skill): fresh navigation, cleared console — zero
+errors; `getComputedStyle` on the actual rendered `<button>` and the
+code/`<pre>` panel both resolve to `"Inter var", ui-sans-serif, ...` and
+`"Fira Code VF", ui-monospace, ...` respectively; screenshot shows visibly
+correct Inter letterforms (compare `docs/poc/` screenshots before/after).
+
+**Judgment call**: `!important` against a vendored dependency's CSS is generally
+something to avoid, but phoenix_storybook exposes no head-injection hook or
+theme API to fix this cleanly (checked: no `:head_tags`/layout override option
+in 0.9.2). Logged as a should-revisit if/when phoenix_storybook adds such a
+hook, or when Phase 1's token pipeline makes `storybook.css` generated from the
+same source as `app.css` (at which point this whole file, and thus this
+override, may simplify or disappear).
+
+**Residual risk: Low** — dev-only surface, cosmetic, now verified end-to-end in
+a real browser rather than by test assertion alone.
