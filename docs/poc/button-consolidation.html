@@ -195,6 +195,25 @@ Batch B after:  &lt;.button theme="ghost" size="sm"&gt; — deltas: px-3→px-2.
       compile guard turns silent drift into loud failure.</li>
 </ol>
 
+<h2>6b. Hardening round (review feedback, 2026-07-16)</h2>
+<div class="card">
+<p>Reviewer (Tyrell) flagged the first pass as under-delivering the plan's DoD. All addressed:</p>
+<table>
+<tr><th>Gap</th><th>Resolution</th></tr>
+<tr><td>A — file structure</td><td>Real <code>@openfn/ui</code> npm workspace (<code>assets/packages/ui</code> with package.json/tsconfig/.storybook/src/button), consumers import <code>'@openfn/ui'</code>, old Button.tsx deleted</td></tr>
+<tr><td>B — CVA</td><td><code>buttonVariants = cva()</code> built from the recipe; enabled/disabled modeled as a <code>vstate</code> dimension + compound variants (hover can never leak into disabled; classes byte-equal to HEEx)</td></tr>
+<tr><td>C — full variant surface</td><td>React now exposes all 7 variants + 4 sizes (was 3 + hardcoded md); recipe-contract tests fail if either side drops one</td></tr>
+<tr><td>D — missing variants</td><td><code>iconLeft/iconRight</code> (React) + <code>icon/icon_right</code> (HEEx); icon-only requires aria-label at the type level; <strong>SplitButton built</strong> on react-aria MenuTrigger (its 3 bespoke call sites migrate as a follow-up batch)</td></tr>
+<tr><td>E — testing</td><td>11 vitest tests (recipe contract, press/keyboard/submit behavior, icon semantics, axe via vitest-axe incl. open menu) + 7 ExUnit tests for the HEEx twin. Coverage: 92.3% stmts / 100% funcs</td></tr>
+<tr><td>F — Storybook</td><td>Storybook 9 (react-vite) in the package, a11y addon at error level, Button + SplitButton stories with play() tests; build green</td></tr>
+<tr><td>G — i18n</td><td>No English defaults anywhere (nakedClose's 'Close panel' default removed; consumers supply strings; SplitButton menuLabel required)</td></tr>
+<tr><td>H — a11y</td><td>react-aria-components as the behavior base; axe tests; decorative icons aria-hidden</td></tr>
+<tr><td>I — docs</td><td><code>packages/ui/README.md</code>: run / test / coverage / how-to-change-styling workflow</td></tr>
+</table>
+<p><strong>New judgment calls:</strong> package is self-contained (inline SVG icons — the app's <code>tailwind.config.ts</code> heroicons plugin uses <code>__dirname</code> and can't load under vite ESM; also the right property for a publishable package); Storybook pinned to 9.1.20 (v10 needs vitest 4); <code>aria-busy</code> dropped from loading (react-aria filters it; busy semantics belong with the Phase-0-gated spinner); <strong>onClick now runs through react-aria's press system</strong> (also fires on Enter/Space; consumer + new tests all green — flag for reviewers).</p>
+<p><strong>Confidence: 4/5</strong> — tsc parity with main (467/467 diffed), 50/50 vitest, 7/7 ExUnit, esbuild/tailwind/storybook builds green; in-browser pixel check still outstanding (same as Switch 1).</p>
+</div>
+
 <h2>7. Verdict — what this proves and disproves about the plan</h2>
 <div class="card">
 <p><strong>Proved:</strong></p>
