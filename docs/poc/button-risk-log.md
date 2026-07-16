@@ -251,3 +251,70 @@ one-offs.
   (untouched).
 - Grep gates: `submit_button` 0 · `button_loader` 0 · `def button` only in
   `ui/button.ex` · raw `<button>` in live/\*\* = 61, all dispositioned.
+
+### Switch 7 — POC hardened to the plan's full DoD (review feedback round)
+
+Review feedback (Tyrell): the first pass under-delivered against the plan's own
+definition of done. Addressed:
+
+- **(A) File structure**: real `@openfn/ui` npm workspace (`assets/package.json`
+  workspaces + `packages/ui/{package.json,tsconfig.json}`), Button moved to
+  `packages/ui/src/button/`, 5 collab-editor imports now `from '@openfn/ui'`,
+  old `collaborative-editor/components/Button.tsx` deleted.
+- **(B) CVA**: `buttonVariants = cva(...)` built FROM the recipe JSON; the
+  enabled/disabled swap modeled as a `vstate` dimension + compound variants so
+  hover can't leak into disabled (guideline) and classes stay byte-equal to
+  HEEx.
+- **(C) Full variant surface**: React Button now exposes ALL 7 recipe variants +
+  4 sizes (was 3 variants, hardcoded md). Recipe-contract tests fail if either
+  side drops a variant.
+- **(D) Missing variants**: `iconLeft`/`iconRight` props (React, aria-hidden
+  decoration) + `icon`/`icon_right` attrs (HEEx); icon-only mode requires an
+  accessible name AT THE TYPE LEVEL; **SplitButton built** (react-aria
+  MenuTrigger; consolidation target for SaveButton/RunRetryButton/
+  new_credential_menu_button — those 3 call sites migrate in a follow-up batch,
+  not force-migrated here).
+- **(E) Testing**: `packages/ui/src/button/Button.test.tsx` — recipe-contract,
+  behavior (press/keyboard/submit/disabled), icon semantics, axe (vitest-axe)
+  incl. open-menu SplitButton. 11 tests. HEEx twin:
+  `test/lightning_web/components/ui/button_test.exs` — 7 tests. Coverage 92.3%
+  stmts / 100% funcs (uncovered = deprecated nakedClose branch).
+- **(F) Storybook**: Storybook 9 (react-vite) at `packages/ui/.storybook` with
+  a11y addon at error level; Button + SplitButton stories incl. play()
+  interaction tests; `npx storybook build` green.
+- **(G) i18n**: no English defaults anywhere (nakedClose's 'Close panel' default
+  REMOVED — InspectorLayout now passes the app-level string; SplitButton
+  `menuLabel` required).
+- **(H) a11y**: react-aria-components as the behavior base (Button press
+  semantics, MenuTrigger focus/dismiss); axe tests; decorative icons
+  aria-hidden; required accessible names.
+- **(I) Docs**: `packages/ui/README.md` — run/test/coverage/change-workflow.
+
+**Judgment calls this round**
+
+1. The app's legacy `tailwind.config.ts` uses `__dirname` (not ESM-safe) so
+   Storybook can't load it → the package is now **self-contained**: inline SVG
+   icons instead of hero-_ classes inside package components; stories use
+   `@heroicons/react`. Right property for a publishable package anyway. The app
+   keeps using hero-_ everywhere else.
+2. Storybook's vite must not inherit the app's v3-era `.postcssrc` — overridden
+   in `viteFinal` (documented in main.ts).
+3. `aria-busy` on loading was dropped: react-aria filters it, and busy semantics
+   belong with the (Phase-0-gated) spinner treatment.
+4. Storybook 10 requires vitest 4 (repo has vitest 3) — pinned Storybook 9.1.20,
+   matching the plan.
+5. Behavior change to note for review: onClick now runs through react-aria's
+   press system (fires on Enter/Space + click, NOT on disabled). Consumer tests
+   (39) + new tests (50 incl. 11 new) green.
+
+**Verification**: browser tsc error count identical to main (467 — diffed lists,
+zero new); ui package tsc clean; vitest 50/50 across package + consumers;
+`mix test` ui/button (7/7) + compile --warnings-as-errors; `mix esbuild default`
+
+- `mix tailwind default` green (workspace resolution + recipe/src @source
+  verified); `storybook build` green.
+
+**Residual risk: Low-Medium** — same pixel-check caveat as Switch 1, plus the
+nakedClose visual (inline SVG x-mark replaces hero-x-mark span: same 24×24
+heroicon path, stroke-width 1.5 — visually identical by construction but
+unverified in-browser).

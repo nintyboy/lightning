@@ -6,7 +6,7 @@ import { cn } from '#/utils/cn';
 import { DataclipViewer } from '../../../react/components/DataclipViewer';
 import type { Dataclip } from '../../api/dataclips';
 import { RENDER_MODES, type RenderMode } from '../../constants/panel';
-import { Button } from '../Button';
+import { Button } from '@openfn/ui';
 
 interface SelectedDataclipViewProps {
   dataclip: Dataclip;

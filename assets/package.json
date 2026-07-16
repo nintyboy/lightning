@@ -72,6 +72,8 @@
     "@openfn/ws-worker": "^1.17.0",
     "@playwright/test": "^1.55.0",
     "@redux-devtools/extension": "^3.3.0",
+    "@storybook/addon-a11y": "^9.1.20",
+    "@storybook/react-vite": "^9.1.20",
     "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -104,6 +106,7 @@
     "globals": "^16.0.0",
     "jsdom": "^27.0.0",
     "prettier": "^3.6.2",
+    "storybook": "^9.1.20",
     "tslib": "^2.8.1",
     "type-fest": "^4.37.0",
     "typescript": "^5.8.2",
@@ -111,11 +114,15 @@
     "vite": "^7.1.5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
+    "vitest-axe": "^1.0.0-pre.5",
     "yjs-types": "^0.0.1"
   },
   "type": "module",
   "browserslist": [
     "defaults",
     "not op_mini all"
+  ],
+  "workspaces": [
+    "packages/*"
   ]
 }

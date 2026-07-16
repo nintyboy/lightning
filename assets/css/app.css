@@ -8,6 +8,7 @@
 
 @source './js/**/*.{js,jsx,ts,tsx}';
 @source './packages/ui/recipes/*.json';
+@source './packages/ui/src';
 @source '../lib/**/*.{ex,exs}';
 @source '../deps/petal_components/**/*.{ex,exs}';
 

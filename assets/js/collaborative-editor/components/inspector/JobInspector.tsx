@@ -11,7 +11,7 @@ import {
 } from '../../hooks/useWorkflow';
 import type { Workflow } from '../../types/workflow';
 import { AlertDialog } from '../AlertDialog';
-import { Button } from '../Button';
+import { Button } from '@openfn/ui';
 import { NewRunButton } from '../NewRunButton';
 import { ShortcutKeys } from '../ShortcutKeys';
 import { Tooltip } from '../Tooltip';

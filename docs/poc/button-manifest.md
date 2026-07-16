@@ -39,6 +39,22 @@ Branch `feature/button-poc` off `main@32f10014`. Companion doc:
 | `button_loader/1` (dead — 0 references)                                                                                                                                                                                        | `lib/lightning_web/components/loaders.ex:29-52`            | `bb130b8a` |
 | Hard-coded variant class strings                                                                                                                                                                                               | `assets/js/collaborative-editor/components/Button.tsx`     | `950585c1` |
 
+## 3b. Added in the hardening round (review feedback)
+
+| Path                                                             | What                                                                                                                                               |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `assets/package.json`                                            | npm workspaces (`packages/*`)                                                                                                                      |
+| `assets/packages/ui/{package.json,tsconfig.json}`                | `@openfn/ui` workspace package (CVA + react-aria-components deps)                                                                                  |
+| `assets/packages/ui/src/button/Button.tsx`                       | Canonical React Button: CVA over the recipe, ALL 7 variants + 4 sizes, iconLeft/iconRight, react-aria base, type-required aria-label for icon-only |
+| `assets/packages/ui/src/button/SplitButton.tsx`                  | SplitButton (react-aria MenuTrigger) — consolidation target for the 3 bespoke split buttons                                                        |
+| `assets/packages/ui/src/button/Button.test.tsx`                  | 11 tests: recipe contract, behavior, icons, axe (vitest-axe)                                                                                       |
+| `assets/packages/ui/src/button/{Button,SplitButton}.stories.tsx` | Storybook stories w/ play() interaction tests                                                                                                      |
+| `assets/packages/ui/.storybook/`                                 | Storybook 9 react-vite config, a11y addon at error level                                                                                           |
+| `assets/packages/ui/README.md`                                   | Run/test/coverage/change-workflow docs                                                                                                             |
+| `test/lightning_web/components/ui/button_test.exs`               | HEEx twin component tests (7)                                                                                                                      |
+| `lib/lightning_web/components/ui/button.ex`                      | + `icon`/`icon_right` attrs                                                                                                                        |
+| DELETED: `assets/js/collaborative-editor/components/Button.tsx`  | replaced by `@openfn/ui` import at all 5 consumers                                                                                                 |
+
 ## 4. Deferred / skipped (with owners)
 
 `cancel_button` (`live/components/credentials.ex:71`, 12 usages): **kept** —

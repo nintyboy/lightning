@@ -108,6 +108,15 @@ defmodule LightningWeb.Components.UI.Button do
   attr :theme, :string, values: @button_themes
   attr :size, :string, default: "md", values: @button_sizes
   attr :tooltip, :any, default: nil
+
+  attr :icon, :string,
+    default: nil,
+    doc: "hero-* icon class rendered before the label (decorative)"
+
+  attr :icon_right, :string,
+    default: nil,
+    doc: "hero-* icon class rendered after the label (decorative)"
+
   attr :rest, :global, include: ~w(id disabled form name value)
 
   slot :inner_block, required: true
@@ -139,7 +148,17 @@ defmodule LightningWeb.Components.UI.Button do
       class={@class}
       {@rest}
     >
+      <span
+        :if={@icon}
+        class={[@icon, "size-4 inline-block align-middle mr-1.5 -ml-0.5"]}
+        aria-hidden="true"
+      />
       {render_slot(@inner_block)}
+      <span
+        :if={@icon_right}
+        class={[@icon_right, "size-4 inline-block align-middle ml-1.5 -mr-0.5"]}
+        aria-hidden="true"
+      />
     </.simple_button_with_tooltip>
     """
   end
