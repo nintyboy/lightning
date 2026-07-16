@@ -42,6 +42,7 @@ defmodule LightningWeb do
       import Plug.Conn
       import LightningWeb.UserAuth, only: [fetch_current_user: 2]
       import LightningWeb.Components.NewInputs
+      import LightningWeb.Components.UI.Button
       import LightningWeb.Components.Table
       alias LightningWeb.Router.Helpers, as: Routes
 
@@ -73,6 +74,7 @@ defmodule LightningWeb do
             )
       use Phoenix.LiveView, @opts
       import LightningWeb.Components.NewInputs
+      import LightningWeb.Components.UI.Button
       import LightningWeb.Components.Table
       import LightningWeb.Utils, only: [ok: 1, noreply: 1, reply: 1]
 
@@ -85,6 +87,7 @@ defmodule LightningWeb do
     quote do
       use Phoenix.LiveComponent
       import LightningWeb.Components.NewInputs
+      import LightningWeb.Components.UI.Button
       import LightningWeb.Components.Table
       import LightningWeb.Utils, only: [ok: 1, noreply: 1, reply: 1]
 
@@ -96,6 +99,7 @@ defmodule LightningWeb do
     quote do
       use Phoenix.Component
       import LightningWeb.Components.NewInputs
+      import LightningWeb.Components.UI.Button
       import LightningWeb.Components.Table
 
       unquote(html_helpers())
@@ -159,6 +163,7 @@ defmodule LightningWeb do
         only: [get_csrf_token: 0, view_module: 1, view_template: 1]
 
       import LightningWeb.Components.NewInputs
+      import LightningWeb.Components.UI.Button
       import LightningWeb.Components.Table
 
       # Include general helpers for rendering HTML

@@ -8,7 +8,7 @@ defmodule LightningWeb.LiveHelpers do
   alias Lightning.Services.UsageLimiter
 
   alias LightningWeb.Components.Icon
-  alias LightningWeb.Components.NewInputs
+  alias LightningWeb.Components.UI
 
   alias Phoenix.LiveView.JS
 
@@ -132,12 +132,12 @@ defmodule LightningWeb.LiveHelpers do
             class="bg-secondary-50 px-4 py-3 sm:px-6 sm:flex"
           >
             <a href="javascript:history.back()">
-              <NewInputs.button theme="primary">
+              <UI.Button.button theme="primary">
                 <div class="h-full">
                   <Icon.left class="h-4 w-4 inline-block" />
                   <span class="inline-block align-middle">Back</span>
                 </div>
-              </NewInputs.button>
+              </UI.Button.button>
             </a>
           </div>
         </div>

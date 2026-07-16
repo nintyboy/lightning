@@ -1,0 +1,15 @@
+primary md:
+  rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto px-3 py-2 font-semibold shadow-xs bg-primary-600 hover:bg-primary-500 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600
+
+primary md disabled:
+  rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto px-3 py-2 font-semibold shadow-xs bg-primary-300 text-white
+
+secondary md:
+  rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto px-3 py-2 font-semibold shadow-xs bg-white hover:bg-gray-50 text-gray-900 ring-1 ring-gray-300 ring-inset
+
+ghost md:
+  rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto px-3 py-2 bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400
+
+danger sm:
+  rounded-md text-sm phx-submit-loading:opacity-75 cursor-pointer disabled:cursor-auto px-2.5 py-1.5 font-semibold shadow-xs bg-red-600 hover:bg-red-500 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600
+

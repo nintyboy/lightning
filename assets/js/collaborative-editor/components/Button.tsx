@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
 
+// Shared class recipe — the same JSON the HEEx button
+// (lib/lightning_web/components/ui/button.ex) reads at compile time.
+// Styling changes belong in the recipe, not here.
+import recipe from '../../../packages/ui/recipes/button.json';
+
 interface ButtonProps {
   children?: ReactNode;
   variant?: 'primary' | 'danger' | 'secondary' | 'nakedClose';
@@ -10,6 +15,16 @@ interface ButtonProps {
   className?: string;
   'aria-label'?: string;
 }
+
+// nakedClose is a React-local close-affordance, not a recipe variant
+// (candidate to fold into a ghost/icon combination later).
+const nakedCloseClasses = `
+  relative rounded-md
+  focus-visible:outline-2 focus-visible:outline-offset-2
+  focus-visible:outline-indigo-600
+  disabled:opacity-50 disabled:cursor-not-allowed
+  text-gray-400 hover:text-gray-500
+`;
 
 /**
  * Reusable button component with consistent styling
@@ -32,47 +47,17 @@ export function Button({
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
-  // Base classes for standard buttons (not nakedClose)
-  const baseClasses = `
-    rounded-md px-3 py-2 text-sm font-semibold shadow-xs
-    focus-visible:outline-2 focus-visible:outline-offset-2
-    disabled:cursor-not-allowed
-  `;
-
-  // nakedClose button has different base classes (no padding/shadow)
-  const nakedCloseBaseClasses = `
-    relative rounded-md
-    focus-visible:outline-2 focus-visible:outline-offset-2
-    focus-visible:outline-indigo-600
-    disabled:opacity-50 disabled:cursor-not-allowed
-  `;
-
-  // Variant-specific classes
-  const variantClasses = {
-    primary: `
-      bg-primary-600 hover:bg-primary-500 text-white
-      focus-visible:outline-primary-600
-      disabled:bg-primary-300 disabled:hover:bg-primary-300
-    `,
-    danger: `
-      bg-red-600 hover:bg-red-500 text-white
-      focus-visible:outline-red-600
-      disabled:bg-red-300 disabled:hover:bg-red-300
-    `,
-    secondary: `
-      bg-white text-gray-900 shadow-xs
-      inset-ring inset-ring-gray-300
-      hover:inset-ring-gray-400
-      disabled:bg-gray-50 disabled:text-gray-400
-    `,
-    nakedClose: `
-      text-gray-400 hover:text-gray-500
-      disabled:opacity-50
-    `,
-  };
-
   const buttonClasses =
-    variant === 'nakedClose' ? nakedCloseBaseClasses : baseClasses;
+    variant === 'nakedClose'
+      ? nakedCloseClasses
+      : [
+          recipe.base,
+          recipe.sizes.md,
+          'disabled:cursor-not-allowed',
+          isDisabled
+            ? recipe.variants[variant].disabled
+            : recipe.variants[variant].enabled,
+        ].join(' ');
 
   return (
     <button
@@ -82,7 +67,6 @@ export function Button({
       aria-label={ariaLabel}
       className={`
         ${buttonClasses}
-        ${variantClasses[variant]}
         ${className}
       `
         .replace(/\s+/g, ' ')
