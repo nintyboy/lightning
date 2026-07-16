@@ -43,6 +43,7 @@ defmodule LightningWeb do
       import LightningWeb.UserAuth, only: [fetch_current_user: 2]
       import LightningWeb.Components.NewInputs
       import LightningWeb.Components.UI.Button
+      import LightningWeb.Components.UI.SplitButton
       import LightningWeb.Components.Table
       alias LightningWeb.Router.Helpers, as: Routes
 
@@ -75,6 +76,7 @@ defmodule LightningWeb do
       use Phoenix.LiveView, @opts
       import LightningWeb.Components.NewInputs
       import LightningWeb.Components.UI.Button
+      import LightningWeb.Components.UI.SplitButton
       import LightningWeb.Components.Table
       import LightningWeb.Utils, only: [ok: 1, noreply: 1, reply: 1]
 
@@ -88,6 +90,7 @@ defmodule LightningWeb do
       use Phoenix.LiveComponent
       import LightningWeb.Components.NewInputs
       import LightningWeb.Components.UI.Button
+      import LightningWeb.Components.UI.SplitButton
       import LightningWeb.Components.Table
       import LightningWeb.Utils, only: [ok: 1, noreply: 1, reply: 1]
 
@@ -100,6 +103,7 @@ defmodule LightningWeb do
       use Phoenix.Component
       import LightningWeb.Components.NewInputs
       import LightningWeb.Components.UI.Button
+      import LightningWeb.Components.UI.SplitButton
       import LightningWeb.Components.Table
 
       unquote(html_helpers())
@@ -164,6 +168,7 @@ defmodule LightningWeb do
 
       import LightningWeb.Components.NewInputs
       import LightningWeb.Components.UI.Button
+      import LightningWeb.Components.UI.SplitButton
       import LightningWeb.Components.Table
 
       # Include general helpers for rendering HTML

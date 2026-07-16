@@ -60,12 +60,16 @@ defmodule LightningWeb.Components.UI.Button do
       * `"icon"` - Square padding for icon-only buttons
 
     * `:tooltip` - A tooltip to display when the button is disabled. Defaults to `nil`.
+      Supplementary only — never a substitute for `aria-label` on icon-only buttons
+      (tooltip content isn't reliably exposed as the accessible name to screen readers).
 
-    * `:rest` - Any additional global attributes (e.g., `id`, `disabled`, `form`, `name`, `value`) that should be applied to the button.
+    * `:rest` - Any additional global attributes (e.g., `id`, `disabled`, `form`, `name`,
+      `value`, `aria-label`) that should be applied to the button.
 
   ## Slots
 
-    * `:inner_block` (required) - The content to render inside the button.
+    * `:inner_block` - The content to render inside the button. Optional for
+      icon-only buttons (see below), otherwise the visible label.
 
   ## Examples
 
@@ -95,6 +99,13 @@ defmodule LightningWeb.Components.UI.Button do
   </.button>
   ```
 
+  Icon-only button — an `aria-label` is REQUIRED (i18n: the caller supplies the
+  string; no English default is provided anywhere in this component):
+
+  ```heex
+  <.button theme="ghost" size="icon" icon="hero-x-mark" aria-label={gettext("Close")} />
+  ```
+
   ## Notes
 
     * The `theme` attribute applies predefined styles from the shared recipe. The
@@ -102,6 +113,9 @@ defmodule LightningWeb.Components.UI.Button do
       via `:class`.
     * A button without a `theme` renders unstyled apart from `:class` (pre-existing
       behavior, kept for API stability).
+    * Icon-only usage (no `:inner_block` content) raises at render time unless
+      `aria-label` is supplied — mirrors the React Button's type-level requirement,
+      enforced here at runtime since HEEx has no static discriminated-union check.
   """
   attr :type, :string, default: "button", values: ["button", "submit"]
   attr :class, :any, default: ""
@@ -119,7 +133,7 @@ defmodule LightningWeb.Components.UI.Button do
 
   attr :rest, :global, include: ~w(id disabled form name value)
 
-  slot :inner_block, required: true
+  slot :inner_block
 
   def button(%{theme: theme} = assigns) when is_binary(theme) do
     disabled = assigns[:rest][:disabled] || false
@@ -141,6 +155,19 @@ defmodule LightningWeb.Components.UI.Button do
   end
 
   def button(assigns) do
+    assigns = assign(assigns, :has_label?, assigns.inner_block != [])
+
+    unless assigns.has_label? or Map.has_key?(assigns.rest, :"aria-label") do
+      raise ArgumentError, """
+      <.button> with no inner content (icon-only) requires an `aria-label` \
+      so the button has an accessible name. Pass caller-supplied text, e.g.:
+
+          <.button theme="ghost" size="icon" icon="hero-x-mark" aria-label={gettext("Close")} />
+
+      This component intentionally ships no English default strings.
+      """
+    end
+
     ~H"""
     <.simple_button_with_tooltip
       tooltip={@tooltip}
@@ -150,13 +177,21 @@ defmodule LightningWeb.Components.UI.Button do
     >
       <span
         :if={@icon}
-        class={[@icon, "size-4 inline-block align-middle mr-1.5 -ml-0.5"]}
+        class={[
+          @icon,
+          "size-4 inline-block align-middle",
+          @has_label? && "mr-1.5 -ml-0.5"
+        ]}
         aria-hidden="true"
       />
       {render_slot(@inner_block)}
       <span
         :if={@icon_right}
-        class={[@icon_right, "size-4 inline-block align-middle ml-1.5 -mr-0.5"]}
+        class={[
+          @icon_right,
+          "size-4 inline-block align-middle",
+          @has_label? && "ml-1.5 -mr-0.5"
+        ]}
         aria-hidden="true"
       />
     </.simple_button_with_tooltip>

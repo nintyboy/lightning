@@ -55,6 +55,16 @@ Branch `feature/button-poc` off `main@32f10014`. Companion doc:
 | `lib/lightning_web/components/ui/button.ex`                      | + `icon`/`icon_right` attrs                                                                                                                        |
 | DELETED: `assets/js/collaborative-editor/components/Button.tsx`  | replaced by `@openfn/ui` import at all 5 consumers                                                                                                 |
 
+## 3c. Feature parity round (icons, split button, a11y, i18n)
+
+| Path                                                     | What                                                                                                                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/lightning_web/components/ui/button.ex`              | `:inner_block` slot relaxed to optional; runtime accessible-name guard (raises without `aria-label` when icon-only); icon margins now conditional on label presence |
+| `lib/lightning_web/components/ui/split_button.ex`        | NEW — HEEx twin of `SplitButton.tsx`, built on `Phoenix.LiveView.JS` + existing `phx-click-away`/`role="menu"` conventions                                          |
+| `test/lightning_web/components/ui/button_test.exs`       | +7 tests: icon-only render/raise/tooltip-insufficient, icon margin conditional                                                                                      |
+| `test/lightning_web/components/ui/split_button_test.exs` | NEW — 8 tests incl. a structural regression guard for the escape-binding fix                                                                                        |
+| `storybook/common/split_button.story.exs`                | NEW — primary/themes/disabled variations                                                                                                                            |
+
 ## 4. Deferred / skipped (with owners)
 
 `cancel_button` (`live/components/credentials.ex:71`, 12 usages): **kept** —

@@ -50,6 +50,34 @@ defmodule LightningWeb.Components.UI.ButtonTest do
       </UI.Button.button>
       """
     end
+
+    def icon_only(assigns) do
+      ~H"""
+      <UI.Button.button
+        theme="ghost"
+        size="icon"
+        icon="hero-x-mark"
+        aria-label={@aria_label}
+      />
+      """
+    end
+
+    def icon_only_no_label(assigns) do
+      ~H"""
+      <UI.Button.button theme="ghost" size="icon" icon="hero-x-mark" />
+      """
+    end
+
+    def icon_only_with_tooltip_only(assigns) do
+      ~H"""
+      <UI.Button.button
+        theme="ghost"
+        size="icon"
+        icon="hero-x-mark"
+        tooltip="Close this panel"
+      />
+      """
+    end
   end
 
   @recipe "assets/packages/ui/recipes/button.json"
@@ -103,6 +131,36 @@ defmodule LightningWeb.Components.UI.ButtonTest do
     test "renders no icon spans by default" do
       html = render_component(&Harness.themed/1, %{theme: "secondary"})
       refute html =~ "aria-hidden"
+    end
+
+    test "icon has no label-spacing margin in icon-only mode" do
+      html =
+        render_component(&Harness.icon_only/1, %{aria_label: "Close panel"})
+
+      refute html =~ "mr-1.5"
+      refute html =~ "-ml-0.5"
+    end
+  end
+
+  describe "button/1 icon-only accessible name (i18n/a11y guard)" do
+    test "renders fine with an aria-label and no visible content" do
+      html =
+        render_component(&Harness.icon_only/1, %{aria_label: "Close panel"})
+
+      assert html =~ ~s(aria-label="Close panel")
+      assert html =~ "hero-x-mark"
+    end
+
+    test "raises when there is no inner content and no aria-label" do
+      assert_raise ArgumentError, ~r/requires an `aria-label`/, fn ->
+        render_component(&Harness.icon_only_no_label/1, %{})
+      end
+    end
+
+    test "a tooltip is not accepted as a substitute for aria-label" do
+      assert_raise ArgumentError, ~r/requires an `aria-label`/, fn ->
+        render_component(&Harness.icon_only_with_tooltip_only/1, %{})
+      end
     end
   end
 

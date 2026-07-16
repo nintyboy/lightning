@@ -393,3 +393,93 @@ override, may simplify or disappear).
 
 **Residual risk: Low** — dev-only surface, cosmetic, now verified end-to-end in
 a real browser rather than by test assertion alone.
+
+### Switch 10 — HEEx feature parity: icon-only buttons + SplitButton + a11y/i18n
+
+Reviewer asked: bring the HEEx side to parity with React on icons, split
+buttons, a11y, and i18n. Gaps found and closed:
+
+**Icon-only buttons (a11y + i18n parity with React's discriminated union).**
+`ui/button.ex`'s `:inner_block` slot was `required: true`, so icon-only buttons
+(no visible label) were impossible — a real feature gap, not a styling one.
+Changed to optional, with a runtime guard: no `:inner_block` content AND no
+`aria-label` in `:rest` raises `ArgumentError` at render time with a corrective
+example. This is the closest HEEx equivalent to React's `ButtonIconOnly` type
+(`children?: undefined; 'aria-label': string`) — HEEx has no static type
+checker, so the guarantee moves from compile-time (TS) to render-time (raise),
+same as the recipe⇄attr guard already in this module. A tooltip is explicitly
+NOT accepted as a substitute for `aria-label` (matches React; tooltip content
+isn't reliably exposed as the accessible name to screen readers). Icon margins
+are now conditional on whether a label is present (was always applied, causing
+lopsided padding on icon-only buttons) — matches React's `children != null`
+check exactly. 7 new tests in `button_test.exs` (recipe-driven variant/size
+coverage, icon-only render + raise + tooltip-is-not-enough, icon margin
+conditional).
+
+**SplitButton — new `ui/split_button.ex`.** Was entirely missing; is the
+consolidation target (per the master inventory) for the collab-editor
+SaveButton, RunRetryButton, and HEEx `new_credential_menu_button`. Built from
+the codebase's OWN existing conventions rather than new JS:
+`Phoenix.LiveView.JS` (`show`/`hide`/`set_attribute`/`focus`/`focus_first`),
+`phx-click-away`, `role="menu"` — the same primitives already used by
+`LightningWeb.Components.Common.simple_dropdown/1`. Two real bugs found and
+fixed while verifying this in a live browser (not by test assertion — see
+below):
+
+1. `simple_dropdown/1` (pre-existing, common.ex:648) hardcodes
+   `aria-expanded="true"` — never toggles. Logged as a pre-existing bug in
+   frozen/adjacent code (out of POC scope to fix); my new component uses
+   `JS.set_attribute` on both open AND close so `aria-expanded` is genuinely
+   accurate.
+2. **Escape-to-close was silently broken across multiple instances on one
+   page.** First attempt used `phx-window-keydown` (global — fires for every
+   mounted split button regardless of which is open; whichever registered last
+   won the focus-restore race, stealing focus into the WRONG instance's
+   trigger). Second attempt used plain `phx-keydown` on the menu `<div>` (should
+   be instance-scoped) — but LiveView's JS client (`live_socket.js` `bind/2`)
+   checks `event.target.getAttribute(binding)` directly with NO
+   ancestor/bubbling lookup for the non-window variant, so it silently never
+   fired once focus moved onto a `role="menuitem"` button via `JS.focus_first`.
+   Fixed by moving the binding onto each menu item button (the element that's
+   actually `document.activeElement`). Verified with two split-button instances
+   open/closed independently in a real browser via the browse skill: opening one
+   doesn't affect the other; Escape closes only the open one and returns focus
+   to ITS OWN trigger. A structural regression test now asserts `phx-keydown`
+   lives on the item buttons, not the wrapper div (the actual bug can't be
+   caught by ExUnit alone — it's client-JS event-target semantics — so the test
+   locks down the _shape_ of the fix, and the module doc records the full story
+   for the next person who's tempted to "simplify" it back onto the div).
+
+`menu_label` (trigger's accessible name) and `:item` labels are
+`attr required: true`/slot content with no defaults — HEEx's compiler enforces
+this at every call site, which is arguably a stronger guarantee than React's
+type-level requirement (TS can be bypassed with `as any`; a missing required
+HEEx attr fails `mix compile`). 8 new tests in `split_button_test.exs` covering
+rendering, full a11y wiring
+(`aria-haspopup`/`aria-expanded`/`aria-controls`/`role`), item semantics, and
+the escape-binding regression guard.
+
+Storybook: added `storybook/common/split_button.story.exs` (primary, per-theme,
+disabled variations) — following the correct `%Variation{slots: [...]}` API
+discovered by reading an official phx.gen.storybook template example, not the
+`<:item>`-in-`template/0` approach I tried first (which phoenix_storybook's
+`template/0` mechanism doesn't support the way I initially assumed).
+
+**Verified**: `mix compile --warnings-as-errors` clean; 17/17 new + existing
+`ui/` tests; full `mix test` — 5 failures, ALL confirmed pre-existing flakiness
+by rerunning standalone (95/95 pass in isolation;
+`AiAssistantChannelTest`/`Lightning.SessionTest`/`GithubClientTest` are
+timing-sensitive GenServer/channel races unrelated to this work; only
+`WebAndWorkerTest` reliably fails, as already documented in Switch 1).
+Live-browser verification via the browse skill: icon-only button renders with
+correct `aria-label` and no lopsided margin; split button opens, closes on
+click-away, closes on Escape with correct focus-return, and two simultaneous
+instances don't cross-contaminate — screenshots in this session's tool output,
+not committed to the repo (transient verification artifacts, not documentation).
+
+**Residual risk: Low.** The Escape fix is now a structural (not behavioral)
+regression test — a future refactor could still silently reintroduce the
+`phx-window-keydown` or wrapper-div mistake if the module doc isn't read;
+accepted, since fully behavioral testing of client-JS interactions is outside
+ExUnit's reach without introducing Wallaby/Playwright, which is out of scope for
+this POC.
