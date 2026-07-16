@@ -179,7 +179,7 @@ defmodule LightningWeb.Components.UI.Button do
         :if={@icon}
         class={[
           @icon,
-          "size-4 inline-block align-middle",
+          "size-4 self-center",
           @has_label? && "mr-1.5 -ml-0.5"
         ]}
         aria-hidden="true"
@@ -189,7 +189,7 @@ defmodule LightningWeb.Components.UI.Button do
         :if={@icon_right}
         class={[
           @icon_right,
-          "size-4 inline-block align-middle",
+          "size-4 self-center",
           @has_label? && "ml-1.5 -mr-0.5"
         ]}
         aria-hidden="true"

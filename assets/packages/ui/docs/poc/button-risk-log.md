@@ -85,7 +85,8 @@ utility, CopyButton.
   mismatch — added a compile-time guard that raises if recipe keys ≠ attr
   values; (c) class ORDER changes (font/shadow moved from base into variant
   strings so ghost can differ) — class order is irrelevant to CSS; sets verified
-  identical by rendering (assets/packages/ui/docs/poc/rendered-classes-after.txt); (d) React JSON
+  identical by rendering
+  (assets/packages/ui/docs/poc/rendered-classes-after.txt); (d) React JSON
   import — `resolveJsonModule` already on; esbuild bundles JSON natively.
 - Rating: **Medium** — wide blast radius but mechanical move with compile-time +
   render-level verification.
@@ -124,8 +125,8 @@ utility, CopyButton.
 
 - `mix compile --warnings-as-errors` clean.
 - Rendered class strings for primary/secondary/danger/ghost/disabled captured
-  (assets/packages/ui/docs/poc/rendered-classes-after.txt) — identical sets to the previous
-  implementation.
+  (assets/packages/ui/docs/poc/rendered-classes-after.txt) — identical sets to
+  the previous implementation.
 - `npx tsc --noEmit -p tsconfig.browser.json`: only pre-existing failures in
   untouched `adaptor-docs/*` (verified untouched vs main). Button.tsx clean.
 - `npx vitest run` NewRunButton + RunRetryButton (Button consumers): 39/39 pass.
@@ -381,7 +382,8 @@ Inter). Root cause chain, worked through empirically with the browse skill
 errors; `getComputedStyle` on the actual rendered `<button>` and the
 code/`<pre>` panel both resolve to `"Inter var", ui-sans-serif, ...` and
 `"Fira Code VF", ui-monospace, ...` respectively; screenshot shows visibly
-correct Inter letterforms (compare `assets/packages/ui/docs/poc/` screenshots before/after).
+correct Inter letterforms (compare `assets/packages/ui/docs/poc/` screenshots
+before/after).
 
 **Judgment call**: `!important` against a vendored dependency's CSS is generally
 something to avoid, but phoenix_storybook exposes no head-injection hook or
@@ -515,3 +517,38 @@ errors.
 
 **Residual risk: none** — purely additive CSS registration, verified visually
 end-to-end.
+
+## Switch 12: HEEx icon not vertically centered (chevron sat 2px high vs React)
+
+**Reported by**: reviewer, comparing the now-visible chevron in
+`<.split_button>` against the React `SplitButton` story side by side — the HEEx
+chevron sat noticeably higher than dead-center in its trigger segment; React's
+did not.
+
+**Root cause**: measured via `getBoundingClientRect()` in the live browser
+(button center Y vs icon center Y) rather than eyeballing pixels. React's
+chevron: `offset 0` (dead center). HEEx's: `offset -2` (2px above center).
+`ui/button.ex`'s icon `<span>` used `inline-block align-middle` —
+`vertical-align` does not apply to flex items (the button is `flex flex-row` per
+the shared recipe's `base`), so it's a no-op here. With no `align-items` set on
+the container (defaults to `stretch`/`normal`), a flex item with an explicit
+cross-axis size (the icon's `size-4`) is positioned at flex-start, i.e. the top
+— not stretched, not centered. The React `Button.tsx` never hits this because
+each icon is wrapped in its own `<span className="flex items-center">`, an inner
+flex container that centers its child regardless of the outer button's
+alignment; the HEEx icon `<span>` is the icon itself with no such wrapper.
+
+**Fix**: replaced `inline-block align-middle` with `self-center` on both the
+`icon` and `icon_right` spans in `ui/button.ex`. `align-self: center` centers
+that one flex item on the cross axis directly — same visual result as React's
+wrapper trick, without introducing an extra DOM element. Recipe (`button.json`)
+was deliberately left untouched: this is a HEEx-side markup fix, not a shared
+style, so the blast radius stays scoped to the one component.
+
+**Verified**: re-measured after the fix — HEEx offset is now `0`, matching React
+exactly. `mix test` (button + split_button suites, 17 tests) green. Reloaded
+live in the browser via the browse skill: chevron now sits centered in the
+"Save" trigger on `/storybook/common/split_button`.
+
+**Residual risk: none** — single-property class swap on two spans, verified by
+measurement (not just visual inspection) and by a live before/after screenshot.
