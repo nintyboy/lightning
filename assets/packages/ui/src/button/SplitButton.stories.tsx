@@ -2,6 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within, screen } from 'storybook/test';
 
 import { SplitButton } from './SplitButton';
+import recipe from '../../recipes/button.json';
+
+const variantNames = Object.keys(recipe.variants) as Array<
+  keyof typeof recipe.variants
+>;
 
 const meta = {
   title: 'UI/SplitButton',
@@ -41,4 +46,24 @@ export const Secondary: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
+};
+
+export const AllVariants: Story = {
+  args: { children: 'x' },
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3">
+      {variantNames
+        .filter((v): v is Exclude<typeof v, 'custom'> => v !== 'custom')
+        .map(v => (
+          <SplitButton
+            key={v}
+            variant={v}
+            menuLabel="More options"
+            items={[{ id: 'a', label: 'Alternative' }]}
+          >
+            {v}
+          </SplitButton>
+        ))}
+    </div>
+  ),
 };

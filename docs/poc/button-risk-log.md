@@ -318,3 +318,27 @@ zero new); ui package tsc clean; vitest 50/50 across package + consumers;
 nakedClose visual (inline SVG x-mark replaces hero-x-mark span: same 24×24
 heroicon path, stroke-width 1.5 — visually identical by construction but
 unverified in-browser).
+
+### Switch 8 — phoenix_storybook was broken on main; fixed (found during review)
+
+Opening /storybook 500'd with
+`LightningWeb.Storybook.asset_hash/1 is undefined`. Pre-existing (nobody had
+opened it in a long time — consistent with the stale story found in the census).
+Three stacked bugs, all in configuration:
+
+1. `storybook.ex` declared `otp_app: :lightning_web` — the app is `:lightning`,
+   so `:code.priv_dir/1` failed and phoenix_storybook never generated the
+   `asset_hash/1` functions at compile time → UndefinedFunctionError.
+2. `js_path` pointed at `/assets/storybook.js` but esbuild outputs
+   `/assets/js/storybook.js` (outdir preserves the `js/` prefix).
+3. Two follow-on issues once it booted: `assets/js/storybook.js` was a stub (app
+   hooks like Tooltip unregistered → console error on the disabled-with-tooltip
+   story) and `assets/css/storybook.css` had no `@theme` color aliases or
+   `@source` directives — so `bg-primary-600` didn't exist in the storybook
+   build and the **Primary button rendered invisible** (verified with a browser
+   screenshot). Fixed: hooks registered (`js_script_type: "module"` since the
+   bundle is ESM), CSS mirrors the primary/secondary aliases and scans
+   `components/ui` + recipes + stories.
+
+Verified in-browser: /storybook/common/button renders all 6 themes correctly, no
+console errors. Risk: Low (dev-only surface).
