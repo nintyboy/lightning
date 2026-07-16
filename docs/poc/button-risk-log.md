@@ -235,3 +235,19 @@ consolidation, per the master inventory sheet:
 ~90% NOT Button work. The one-off cleanup phases should be re-cut per OWNING
 component, and the modal-close slot alone (one Modal change) retires 27
 one-offs.
+
+## Final verification (end of run)
+
+- `mix test` (full, post-everything): **4306 tests, 2 failures** —
+  `Lightning.WebAndWorkerTest` (pre-existing; fails identically on main;
+  worker-runtime integration) and `Lightning.VersionControlTest` (flaky under
+  full-suite parallelism; passes standalone 21/21; GitHub-mock timing, unrelated
+  to UI).
+- `npx vitest run` (full): 210 failures across 12 files — **all pre-existing**:
+  the biggest failing file (ChatInput, 63) fails identically on `main`, and none
+  of the failing areas import Button (verified). Known-affected consumer tests
+  (NewRunButton/RunRetryButton, 39) pass.
+- `npx tsc -p tsconfig.browser.json`: only pre-existing `adaptor-docs` errors
+  (untouched).
+- Grep gates: `submit_button` 0 · `button_loader` 0 · `def button` only in
+  `ui/button.ex` · raw `<button>` in live/\*\* = 61, all dispositioned.
